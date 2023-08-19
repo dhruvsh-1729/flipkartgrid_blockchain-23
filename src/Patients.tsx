@@ -26,21 +26,23 @@ export default function Patients() {
   const diagnosisList = async () => {
     if (loggedIn === true) {
       try {
-        const response = await axios.post("http://localhost:4000/api/getDiagnostic", {
+        const response = await axios.post("http://localhost:4000/api/get_diagnosis", {
           aadhar: form.aadhar,
+          privateKey : form.secretKey
         });
 
         const { message, data } = response.data;
+        console.log(data)
         
         const newDiagnosisElements = data.map((item) => (
           <UserDiagnosis
             key={item._id}
-            symptoms={item.symptoms}
-            docName={item.doctorName}
-            diagnosis={item.diagnosis}
-            document={item.document}
-            patientName={item.patientName}
-            docType={item.docType}
+            symptoms={item.data.symptoms}
+            docName={item.data.doctorName}
+            diagnosis={item.data.diagnosis}
+            document={item.data.document}
+            patientName={item.data.patientName}
+            docType={item.data.docType}
           />
         ));
 

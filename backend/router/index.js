@@ -93,7 +93,6 @@ router.post("/makeDiagnosis", async (req, res)=>{
     console.log(typeof(key));
 
     const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
-    // const cipher = crypto.createCipheriv('aes-256-cbc', key.encryptionKey, key.iv);
     let encryptedName = cipher.update(req.body.name, 'utf-8', 'hex');
     encryptedName += cipher.final('hex');
 
@@ -156,6 +155,39 @@ router.get("/get_diagnosis/:aadhar", async (req, res) => {
         });
     }
 });
+
+router.post("/get_diagnosis", async (req, res) => {
+    const storageObj = await storage();
+    const Aadhar = crypto.createHash('sha256').update(req.body.aadhar).digest('hex');
+
+    let {key, rsa} = await getAESkey(Aadhar, req.body.privateKey)
+    key = JSON.parse(key)
+
+    let diagnosis_list = [];
+    for( var id in storageObj.patient_diagnosis[Aadhar]){
+        diagnosis_list.push({data: storageObj.diagnosis_list[storageObj.patient_diagnosis[Aadhar][id]], 
+        loc: storageObj.patient_diagnosis[Aadhar][id]})
+    }
+
+    for(var i=0; i<diagnosis_list.length; i++){
+        let curObj = diagnosis_list[i].data;
+        for(field in curObj){
+            if(field === "patientName" || field === "symptoms" || field === "diagnosis" || field === "docType" || field === "doctorName" || field==="document"){
+                const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
+                let decrypted = decipher.update(curObj[field], 'hex', 'utf-8');
+                decrypted += decipher.final('utf-8');
+                curObj[field] = decrypted;
+            }
+        }
+        diagnosis_list[i].data = curObj;
+    }
+    return res.status(200).json({
+        data: diagnosis_list,
+        message: "Success"
+    });
+});
+
+
 router.post("/get_diagnosis_list", async (req, res) => {
     const Aadhar = req.body.aadhar; // Use req.body.aadhar to access the Aadhar field
     const Storage_URL = process.env.STORAGE_URL;
