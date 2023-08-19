@@ -118,7 +118,6 @@ export default function SignupCard() {
   
 </Heading>
 <Button onClick={()=>navigate('/login')}>Login now</Button>
-
 </Stack>
 </Flex>
 
