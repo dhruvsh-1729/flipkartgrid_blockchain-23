@@ -4,7 +4,8 @@ import {tezos} from "./tezos";
 import axios from "axios";
 import internal from "stream";
 
-const CONTRACTADDRESS = "KT1Jaa9gds336gNj5nUasV8hA6vXkn1Q45vi"
+// const CONTRACTADDRESS = "KT1Jaa9gds336gNj5nUasV8hA6vXkn1Q45vi" // does not have encrypted name in AddAppointment
+const CONTRACTADDRESS = "KT192LPKjKUjBH4UVmJeShjecGyG2sTq5BvC"
 export const addPatient = async (sex:string , userAadhar: string, publicKey: string, 
     name:string , age:string ) => {
         try{
@@ -70,11 +71,13 @@ export const controlVisibility = async (removalAadhar:string, senderAadhar:strin
     }
 };
 
-export const makeAppointment = async(patientAadhar:string, symptoms:string, doctorAadhar:string) => {
+export const makeAppointment = async(patientAadhar:string, symptoms:string, doctorAadhar:string,
+    doctorEncryptionMessage:string, patientEncryptionMessage:string, docName:string) => {
     try{
-        const contract = await tezos.wallet.at("KT1R2uhywzSbAwPZAZFVYCc1rANDvmhUUHVe");
+        const contract = await tezos.wallet.at(CONTRACTADDRESS);
         
-        const op = await contract.methods.makeAppointment(  doctorAadhar ,patientAadhar, symptoms ).send();
+        const op = await contract.methods.makeAppointment( docName,   doctorAadhar , doctorEncryptionMessage, patientAadhar, 
+            patientEncryptionMessage, symptoms ).send();
 
         await op.confirmation(1);
         

@@ -130,32 +130,6 @@ router.post("/makeDiagnosis", async (req, res)=>{
 
 })
 
-router.get("/get_diagnosis/:aadhar", async (req, res) => {
-    const Aadhar = req.params.aadhar;
-    const Storage_URL = process.env.STORAGE_URL;
-
-    try {
-        const result = await axios.get(Storage_URL);
-        
-        if (result.status === 200) {
-            const diagnosisData = result.data; // Assuming the API returns the diagnosis data
-            
-            return res.status(200).json({
-                data: diagnosisData,
-                message: "Success"
-            });
-        } else {
-            return res.status(500).json({
-                message: "Error"
-            });
-        }
-    } catch (error) {
-        return res.status(500).json({
-            message: "Error"
-        });
-    }
-});
-
 router.post("/get_diagnosis", async (req, res) => {
     const storageObj = await storage();
     const Aadhar = crypto.createHash('sha256').update(req.body.aadhar).digest('hex');
@@ -171,16 +145,21 @@ router.post("/get_diagnosis", async (req, res) => {
 
     for(var i=0; i<diagnosis_list.length; i++){
         let curObj = diagnosis_list[i].data;
+
         for(field in curObj){
-            if(field === "patientName" || field === "symptoms" || field === "diagnosis" || field === "docType" || field === "doctorName" || field==="document"){
-                const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
-                let decrypted = decipher.update(curObj[field], 'hex', 'utf-8');
-                decrypted += decipher.final('utf-8');
+            if(field === "patientName" || field === "symptoms" || field === "diagnosis" || field === "docType"|| field==="doctorName"  || field==="document"){
+                if (curObj[field] !== "" && curObj[field]!=="Shilpa" && curObj[field]!=="Rudra Pratap Singh"){
+                const de = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
+                let decrypted = de.update(curObj[field], 'hex', 'utf-8');
+                decrypted += de.final('utf-8');
                 curObj[field] = decrypted;
+                }
             }
         }
         diagnosis_list[i].data = curObj;
     }
+
+
     return res.status(200).json({
         data: diagnosis_list,
         message: "Success"
@@ -355,6 +334,41 @@ router.post("/getPatientData", (req, res) => {
         sex: sex, 
         dob: dob,
         message: "success"
+    })
+})
+
+router.post("/makeAppointment", async (req, res) => {
+    // req.body.doctorAadhar, 
+    // req.body.aadhar
+
+
+    const storageObj = await storage();
+    const Aadhar = crypto.createHash('sha256').update(req.body.aadhar).digest('hex');
+
+    let {key, rsa} = await getAESkey(Aadhar, req.body.privateKey)
+    key = JSON.parse(key)
+
+    const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
+    let symptoms = cipher.update(req.body.symptoms, 'utf-8', 'hex');
+    symptoms += cipher.final('hex');
+
+    const doctorName = storageObj.doc_info[req.body.doctorAadhar].name;
+    const cipher2 = crypto.createCipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
+    let encryptedDoctorName = cipher2.update(doctorName, 'utf-8', 'hex');
+    encryptedDoctorName += cipher2.final('hex');
+
+    const doctorPublicKey = storageObj.public_keys[req.body.doctorAadhar];
+    console.log(doctorPublicKey);
+
+    const AESencryptForDoctor = RSA.encryptMessage(JSON.stringify(key), doctorPublicKey);
+
+    return res.status(200).json({
+        message: "success",
+        AESencryptForDoctor: AESencryptForDoctor,
+        symptoms: symptoms,
+        rsa: rsa,
+        hashedAadhar: Aadhar,
+        encryptedDoctorName: encryptedDoctorName
     })
 })
 module.exports = router

@@ -1,7 +1,9 @@
 import React from "react";
 import { makeAppointment } from "../utils/operation";
+import axios from "axios"
 
 export default function AddAppointment(props) {
+    let form = props.form
     const [newDiagnosis, setNewDiagnosis] = React.useState({
         doctorAadhar: "",
         symptoms: "",
@@ -19,9 +21,51 @@ export default function AddAppointment(props) {
     const submitBut = async (event) => {
         event.preventDefault()
 
-        await makeAppointment(props.userAadhar, newDiagnosis.symptoms,  newDiagnosis.doctorAadhar )
-        console.log("added appointment" ,newDiagnosis)
-        alert("added appointment")
+        let data = {
+          "aadhar": form.aadhar,
+          "privateKey":  form.secretKey,
+          "symptoms": newDiagnosis.symptoms,
+          "doctorAadhar": newDiagnosis.doctorAadhar,
+        };
+  
+        console.log(data)
+        
+        const url =  'http://localhost:4000/api/makeAppointment'
+        let config = {
+          maxBodyLength: Infinity,
+          headers: { 
+            'Content-Type': 'application/json'
+          }
+        };
+        console.log("Making the call")
+        axios.post(url, data, config)
+        .then(async (response) => {
+          console.log(response.data)
+          console.log(JSON.stringify(response.data));
+        
+          await makeAppointment(response.data.hashedAadhar,response.data.symptoms , newDiagnosis.doctorAadhar,
+            response.data.AESencryptForDoctor, response.data.rsa,response.data.encryptedDoctorName).
+            then(res=>{
+              alert("Appointment Added")
+            }).catch(err=>{
+              alert("Error Occured", err)
+            })
+        })
+        .catch((error) => {
+          if ("response" in error){
+            if ("data" in error.response){
+                alert(error.response.data.message)
+            }
+            console.log(error.response.data.message)
+          }
+          else{
+          console.log("Error Occured");
+          }
+        });
+
+        // await makeAppointment(props.userAadhar, newDiagnosis.symptoms,  newDiagnosis.doctorAadhar )
+        // console.log("added appointment" ,newDiagnosis)
+        // alert("added appointment")
     }
   return (
     <div className="container mt-4">

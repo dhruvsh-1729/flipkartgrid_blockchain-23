@@ -117,7 +117,7 @@ export default function Patients() {
             {viewState === 2 && (
               <NewDiagnosisForm form={form} />
             )}
-            {viewState === 3 && <AddAppointment userAadhar={form.aadhar}/>}
+            {viewState === 3 && <AddAppointment form={form}/>}
           </div>
         </div>
       )}
