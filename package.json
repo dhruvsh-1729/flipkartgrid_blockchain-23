@@ -9,11 +9,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@chakra-ui/react": "^2.8.0",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
     "@pinata/sdk": "^2.1.0",
     "@taquito/beacon-wallet": "^17.0.0",
     "@taquito/taquito": "^17.0.0",
     "buffer": "^6.0.3",
     "events": "^3.3.0",
+    "framer-motion": "^10.16.0",
     "nodemon": "^3.0.1",
     "qrcode-generator": "^1.4.4",
     "react": "^18.2.0",

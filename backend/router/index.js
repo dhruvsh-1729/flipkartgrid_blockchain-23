@@ -45,16 +45,12 @@ router.post("/login", async (req, res) => {
         
         if (AadharHash in storageObj.patient_info){
             try{    
-
             const publicKeyinput = JSON.parse(storageObj.public_keys[AadharHash])
             // console.log(publicKeyinput)
-            console.log({"pri":req.body.privateKey})
             let intermediate = RSA.decryptMessage(publicKeyinput.RSAencryptedcipherKey, req.body.privateKey)
-            
-            console.log(intermediate)
+
             let key = JSON.parse(intermediate)
-            console.log(key)
-            // conso
+            
             const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
             let name = decipher.update(storageObj.patient_info[AadharHash].name, 'hex', 'utf-8');
             name += decipher.final('utf-8');
@@ -64,15 +60,14 @@ router.post("/login", async (req, res) => {
             sex += decipher2.final('utf-8');
 
             const decipher3 = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
-            let dob = decipher3.update(storageObj.patient_info[AadharHash].age, 'hex', 'utf-8');
-            dob += decipher3.final('utf-8');
+            let age = decipher3.update(storageObj.patient_info[AadharHash].age, 'hex', 'utf-8');
+            age += decipher3.final('utf-8');
 
             return res.status(200).json({
                 message: "Success",
                 name: name,
-                dob: dob, 
+                age: age, 
                 sex: sex,
-                key: key
             })
         }
         catch(err){
@@ -266,8 +261,8 @@ router.post("/register", (req, res) => {
     let sex = cipher2.update(req.body.sex, 'utf-8', 'hex');
     sex += cipher2.final('hex');
     const cipher3 = crypto.createCipheriv('aes-256-cbc', encryptionKey, iv);
-    let dob = cipher3.update(req.body.dob, 'utf-8', 'hex');
-    dob += cipher3.final('hex');
+    let age = cipher3.update(req.body.age, 'utf-8', 'hex');
+    age += cipher3.final('hex');
 
     // const sex = req.body.sex;
     // const dob = req.body.dob;
@@ -287,7 +282,7 @@ router.post("/register", (req, res) => {
         publicKey: JSON.stringify(publicKeyinput),
         name: name,
         sex: sex, 
-        dob: dob, 
+        age: age, 
         privateKey: privateKey,
         encryptionKey: encryptionKey.toString('hex'),
         iv: iv.toString('hex'),
