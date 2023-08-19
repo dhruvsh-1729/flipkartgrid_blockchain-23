@@ -137,10 +137,20 @@ router.post("/get_diagnosis", async (req, res) => {
     let {key, rsa} = await getAESkey(Aadhar, req.body.privateKey)
     key = JSON.parse(key)
 
+    let doctorAccess = []
+
     let diagnosis_list = [];
     for( var id in storageObj.patient_diagnosis[Aadhar]){
+        let acess = storageObj.diagnosis_visibility[storageObj.patient_diagnosis[Aadhar][id]]
+        let otherAcess = []
+        for (field in acess){
+            if (field!=Aadhar){
+                otherAcess.push(field)
+            }
+        }
         diagnosis_list.push({data: storageObj.diagnosis_list[storageObj.patient_diagnosis[Aadhar][id]], 
-        loc: storageObj.patient_diagnosis[Aadhar][id]})
+        loc: storageObj.patient_diagnosis[Aadhar][id], 
+        access: otherAcess})
     }
 
     for(var i=0; i<diagnosis_list.length; i++){
