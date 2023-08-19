@@ -59,7 +59,7 @@ export default function SignupCard() {
         const {message, name, age, sex, token} = response.data;
         setSessionLogin(true);
         setSessionToken(token);
-        setSessionUser(JSON.stringify({name,age,sex}))
+        setSessionUser(JSON.stringify({name,age,sex,token}))
       })
       .catch((error) => {
         console.log(error.message)

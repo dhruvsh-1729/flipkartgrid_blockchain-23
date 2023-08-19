@@ -65,15 +65,11 @@ router.post("/login", async (req, res) => {
             age += decipher3.final('utf-8');
 
             const payload = {
-                name, age, sex
-            }
-
-            const options = {
-                expiresIn : '1h'
-            }
-
-            const token = jwt.sign(payload, options, process.env.JWT_SECRET);
-
+                name,age,sex
+              };
+        
+              const token = jwt.sign(payload,process.env.JWT_SECRET, { expiresIn: '1h' });
+              
             return res.status(200).json({
                 message: "Success",
                 name,
