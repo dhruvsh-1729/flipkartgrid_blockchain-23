@@ -117,9 +117,11 @@ export default function SignupCard() {
       </SlideFade>
   
 </Heading>
-<Button onClick={navigate('/login')}>Login now</Button>
+<Button onClick={()=>navigate('/login')}>Login now</Button>
+
 </Stack>
 </Flex>
+
         :
         
         <Flex
