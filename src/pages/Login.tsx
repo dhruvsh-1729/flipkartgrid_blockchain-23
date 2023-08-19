@@ -22,6 +22,7 @@ import {
 import { useEffect, useState } from 'react'
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
 import { showToast } from '../utils/showToasts';
+import {useSessionStorage} from './../utils/useSessionStorage'
 
 const { toast, ToastContainer } = createStandaloneToast();
 
@@ -55,22 +56,22 @@ export default function SignupCard() {
     axios.post(url, form, config)
       .then((response) => {
         console.log(response.data)
-        console.log(JSON.stringify(response.data));
-        let {message, ...rest} = response.data
-        setForm(prev=>(
-          {
-            ...prev,
-            name: response.data.name,
-            age: response.data.age, 
-            sex: response.data.sex,
-          }))
-        console.log("form is as follows")
-        console.log(form);
+        const {message, name, age, sex, token} = response.data;
+        setSessionLogin(true);
+        setSessionToken(token);
+        setSessionUser(JSON.stringify({name,age,sex}))
       })
       .catch((error) => {
         console.log(error.message)
       });
     }
+
+  const [sessionLogin, setSessionLogin] = useSessionStorage("login", "false");
+  const [sessionToken, setSessionToken] = useSessionStorage("token", "");
+  const [sessionUser, setSessionUser] = useSessionStorage(
+    "user",
+    JSON.stringify({})
+  );
     return (
         <>
             <Flex
