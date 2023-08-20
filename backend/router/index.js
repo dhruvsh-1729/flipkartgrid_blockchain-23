@@ -299,8 +299,8 @@ router.post("/register", (req, res) => {
     let sex = cipher2.update(req.body.sex, 'utf-8', 'hex');
     sex += cipher2.final('hex');
     const cipher3 = crypto.createCipheriv('aes-256-cbc', encryptionKey, iv);
-    let dob = cipher3.update(req.body.dob, 'utf-8', 'hex');
-    dob += cipher3.final('hex');
+    let age = cipher3.update(req.body.age, 'utf-8', 'hex');
+    age += cipher3.final('hex');
 
     // const sex = req.body.sex;
     // const dob = req.body.dob;
@@ -320,7 +320,7 @@ router.post("/register", (req, res) => {
         publicKey: JSON.stringify(publicKeyinput),
         name: name,
         sex: sex, 
-        dob: dob, 
+        age: age, 
         privateKey: privateKey,
         encryptionKey: encryptionKey.toString('hex'),
         iv: iv.toString('hex'),
