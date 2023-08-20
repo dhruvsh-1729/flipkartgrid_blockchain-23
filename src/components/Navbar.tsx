@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { connectWallet, getAccount, disconnectWallet } from "../utils/wallet";
 import axios from "axios";
+import {FaHome, FaUser, FaSignOutAlt} from 'react-icons/fa'
+import { Box, Flex, Icon, Text, tokenToCSSVar, VStack } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
 import { useSessionStorage } from "../utils/useSessionStorage";
 import { Link } from "react-router-dom";
 
@@ -29,12 +32,26 @@ const getResponse = async () => {
 
 const Navbar: React.FC = () => {
   const [account, setAccount] = useState<string>("");
-    
-  const [token,setToken] = useSessionStorage('token','');
-  const [user,setUser] = useSessionStorage('user',JSON.stringify({}));
-  const [login,setLogin] = useSessionStorage('login',"false");
 
-  const User = JSON.parse(user);
+  const [login, setLogin] = useSessionStorage("login", "");
+  const [token, setToken] = useSessionStorage("token", "");
+  const [user, setUser] = useSessionStorage(
+    "user",
+    JSON.stringify({})
+  );
+
+  let User={};
+
+  if(login==="true"){
+    User=JSON.parse(user)
+  }
+
+  const navigate = useNavigate();
+  const menuItems = [
+    { icon: FaUser, label: 'Profile', link:'/doctor_profile'},
+    { icon: FaUser, label: 'All Patients',link:'/doctor_home' },
+    { icon: FaUser, label: 'Search Patient',link:'/doctor_adddiag' },
+  ];
 
   useEffect(() => {
     (async () => {
@@ -57,15 +74,52 @@ const Navbar: React.FC = () => {
     await disconnectWallet();
     setAccount("");
   };
+
+  interface NavbarItem {
+    icon: React.FC,
+    label:string
+  }
+
+  const NavbarItem = ({ icon, label }:NavbarItem) => {
+
+    return (
+      <Flex align="center" p={2} cursor="pointer" 
+      style={{color:'white',transition:"0.5s all ease",justifyContent:'center',alignItems:'center',display:'flex',fontSize:'1rem'}}
+      _hover={{backgroundColor:'gray.600',color:'lightgreen',borderRadius:'10px'}}
+      >
+        <Icon as={icon} mr={2} color={'lightgreen'} />
+       <Text style={{position:'relative',top:'.5rem',display:'flex',justifyContent:'center',alignContent:'center',alignItems:'center',fontSize:'1rem',color:'white',transition:"0.5s all ease"}}
+        >{label}</Text>
+      </Flex>
+    );
+  };
+
   return (
+    <Box bg="gray.200" boxShadow="md" >
     <div className="navbar navbar-dark bg-dark fixed-top">
       <div className="container py-2">
-        <Link to={login==="true" && token.length ? `/patient_home`:`/`} className="navbar-brand">
+        <a href="/" style={{textDecoration:'none', color:'white',fontSize:'1.5rem'}}>
           Health Record Management
-        </Link>
-        <span style={{color:'white', fontWeight:600, fontSize:'1rem'}}>
-          {login==="true" && token.length? `Hi ${User.name}! Welcome to the Portal.` :""}
-        </span>
+        </a>
+      {(login==="true" && token.length)? <VStack spacing={1} align="stretch" flex={1} flexDirection='row' ml={'2rem'}>
+        {User?.speciality!==undefined && menuItems.map((item, index) => (
+          <NavbarItem key={index} icon={item.icon} label={item.label} />
+        ))}
+        <Flex align="center" p={2} cursor="pointer" 
+      style={{color:'white',transition:"0.5s all ease",justifyContent:'center',alignItems:'center',display:'flex',fontSize:'1rem'}}
+      _hover={{backgroundColor:'gray.600',color:'lightgreen',borderRadius:'10px'}}
+      onClick={()=>{
+        setLogin("false");
+        setToken("");
+        setUser({});
+        navigate('/doctor_login')
+      }}
+      >
+        {User?.speciality!==undefined && <><Icon as={FaSignOutAlt} mr={2} color={'lightgreen'} />
+       <Text style={{position:'relative',top:'.5rem',display:'flex',justifyContent:'center',alignContent:'center',alignItems:'center',fontSize:'1rem',color:'white',transition:"0.5s all ease"}}
+        >Logout</Text></>}
+      </Flex>
+      </VStack>:""}
         <div className="d-flex">
           {/* TODO 4.b - Call connectWallet function onClick  */}
           <button  onClick={onConnectWallet}className="btn btn-outline-info">
@@ -78,6 +132,8 @@ const Navbar: React.FC = () => {
         </div>
       </div>
     </div>
+    </Box>
+
   );
 };
 

@@ -5,73 +5,62 @@ import {
     FormControl,
     FormLabel,
     Input,
-    InputGroup,
-    HStack,
-    InputRightElement,
     Stack,
     Button,
     Heading,
     Text,
     useColorModeValue,
     Link,
-    RadioGroup,
-    Radio,
     createStandaloneToast
 } from '@chakra-ui/react'
 
 import { useEffect, useState } from 'react'
 import { showToast } from '../utils/showToasts';
-import {useSessionStorage} from './../utils/useSessionStorage'
-import {useNavigate} from 'react-router-dom'
+import { useSessionStorage } from '../utils/useSessionStorage';
+import { useNavigate } from 'react-router-dom';
 
 const { toast, ToastContainer } = createStandaloneToast();
 
 export default function SignupCard() {
     const [form, setForm] = useState({
         aadhar: '',
-        privateKey:''
     })
-
-    const [login,setSessionLogin] = useSessionStorage('login','false');
-    const [token,setSessionToken] = useSessionStorage('token','');
-    const [user,setSessionUser] = useSessionStorage('user',JSON.stringify({}))
 
     const [loading, setLoading] = useState(false);
 
-    const navigate = useNavigate();
+    // const [UserDiagnosis, setUserDiagnosis] = useState([])
+    const navigate = useNavigate()
+    const [login,setLogin] = useSessionStorage('login','false');
+    const [token, setToken] = useSessionStorage('token', '');
+    const [user,setUser] = useSessionStorage('user', JSON.stringify({}));
+
     const allFieldsFilled = () => {
         const values = Object.values(form);
         return values.every(value => value.trim().length > 0);
     }
 
     const handleSubmit = async () =>{
+        console.log('handleSubmit called');
         
-        setForm(prev=>({
-            ...prev, 
-            privateKey: form.privateKey.replace(/\\n/g, '\n')
-        }))
-        const url = 'http://localhost:4000/api/login'
-        let config = {
-            maxBodyLength: Infinity, 
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        };
+        const response = await axios.post("http://localhost:4000/api/doctorlogin", {
+            aadhar: form.aadhar,
+            });
+      
+            console.log(response.data)
+            const {message, user, token} = response.data;
 
-    axios.post(url, form, config)
-      .then((response) => {
-        console.log(response.data)
-        const {message, name, age, sex, aadhar, token} = response.data;
-        setSessionLogin("true");
-        setSessionToken(token);
-        setSessionUser(JSON.stringify({name,age,sex,aadhar}))
-        navigate('/patient_home')
-        window.location.reload();
+            setUser(JSON.stringify(user))
+            setLogin('true')
+            setToken(token)
+            navigate('/doctor_view')
+            window.location.reload();
 
-      })
-      .catch((error) => {
-        console.log(error.message)
-      });
+            // let temp = [];
+            // for (let field in data) {
+            // temp.push({...data[field], "Aadhar": field});
+            // }
+            // setUserDiagnosis(temp);
+            // console.log("logged In Successfully")
     }
     return (
         <>
@@ -102,14 +91,6 @@ export default function SignupCard() {
                                             setForm(prev => ({ ...prev, aadhar: e.target.value }))
                                         }} />
                                     </FormControl>
-             
-                            <FormControl id="privatekey" isRequired>
-                                <FormLabel>Paste your Private Key</FormLabel>
-                                <Input type="text" onChange={(e) => {
-                                    setForm(prev => ({ ...prev, privateKey: e.target.value }))
-                                }} />
-                            </FormControl>
-                        
 
                             <Stack spacing={10} pt={2}>
                                 <Button
@@ -122,13 +103,14 @@ export default function SignupCard() {
                                     }}
                                     onClick={(e) => {
                                         handleSubmit();
+
                                     }}>
                                     Login
                                 </Button>
                             </Stack>
                             <Stack pt={6}>
                                 <Text align={'center'}>
-                                    Not registered? <Link color={'blue.400'} href="/register">Register</Link>
+                                    Not registered? <Link color={'blue.400'} href="/doctor_register">Register</Link>
                                 </Text>
                             </Stack>
                         </Stack>

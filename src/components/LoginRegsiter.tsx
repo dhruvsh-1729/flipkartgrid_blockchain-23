@@ -98,7 +98,7 @@ const LoginRegister = (props)=>{
       let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'http://localhost:4001/api/register',
+        url: 'http://localhost:4000/api/register',
         headers: { 
           'Content-Type': 'application/json'
         },

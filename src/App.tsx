@@ -8,6 +8,11 @@ import NewSidebar from './components/NewSidebar';
 import Patients from "./pages/Patients";
 import RegistrationForm from "./pages/Register";
 import Login from './pages/Login';
+import DoctorLogin from "./pages/DoctorLogin";
+import DoctorView from "./pages/DoctorView";
+import DoctorRegister from "./pages/DoctorRegister";
+import Sidebar from "./components/Sidebar";
+import DoctorSidebar from "./components/DoctorSidebar";
 import PatientHome from './pages/PatientHome';
 import PatientAddDiag from "./pages/PatientAddDiag";
 import PatientAppointment from "./pages/PatientAppointment";
@@ -25,16 +30,27 @@ const App: React.FC = () => {
   const [user,setUser] = useSessionStorage('user',JSON.stringify({}));
   const [login,setLogin] = useSessionStorage('login',false);
 
+  let User={}
+  
+  if(login==="true")
+  { User = JSON.parse(user);}
+
   useEffect(()=>{
     if(login==="true") setLoggedIn(true);
     else setLoggedIn(false);
   },[login])
 
+
   return (
     <div className="h-100">
       <Navbar />
-      {loggedIn && login==="true" && token.length && <NewSidebar />}
+      {loggedIn && login==="true" && token.length && User?.speciality===undefined &&<NewSidebar /> }
       <Routes>
+        <Route path="/register" element={<RegistrationForm />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/doctor_login" element={<DoctorLogin />} />
+        <Route path="/doctor_view" element={(login==="true" && token.length)?<DoctorView/> :""} />
+        <Route path="/doctor_register" element={<DoctorRegister />} />
         <Route path="/" element={<Welcome />} />
         <Route path="/register" element={<RegistrationForm />} />
         <Route path="/login" element={<Login />} />

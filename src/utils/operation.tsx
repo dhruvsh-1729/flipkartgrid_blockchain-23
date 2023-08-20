@@ -101,13 +101,13 @@ export const shareDiagnosis = async (docAadhar:string, doctorEncryptionMessage:s
         }
 };
 
-export const updateDiagnosis = async (document:string , patientAadhar:string, docMessage:string, 
+export const updateDiagnosis = async (document:string , patientAadhar:string, 
     doctorAadhar:string, docType:string, diagnosisIndex:string, diagnosis:string) => {
         try{
-            const contract = await tezos.wallet.at("KT1R2uhywzSbAwPZAZFVYCc1rANDvmhUUHVe");
+            const contract = await tezos.wallet.at(CONTRACTADDRESS);
             
             const op = await contract.methods.updateDiagnosis(diagnosis, diagnosisIndex, docType, 
-                doctorAadhar, docMessage, document, patientAadhar).send();
+                doctorAadhar, document, patientAadhar).send();
     
             await op.confirmation(1);
             
