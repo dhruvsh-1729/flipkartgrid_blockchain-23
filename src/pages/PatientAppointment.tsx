@@ -76,7 +76,7 @@ export default function PatientAppointment() {
         // console.log("newDiagnosis ", newDiagnosis)
         setNewDiagnosis(prev=>({
             ...prev, 
-            privateKey: newDiagnosis.privateKey.replace(/\\n/g, '\n')
+            privateKey: prev.privateKey.replace(/\\n/g, '\n')
         }))
         
         const url =  'http://localhost:4000/api/makeAppointment'
@@ -101,9 +101,11 @@ export default function PatientAppointment() {
           await makeAppointment(response.data.hashedAadhar,response.data.symptoms , newDiagnosis.doctorAadhar,
             response.data.AESencryptForDoctor, response.data.rsa,response.data.encryptedDoctorName).
             then(res=>{
-              alert("Appointment Added")
+              console.log(res);
+              
             }).catch(err=>{
-              alert(`Error Occured + ${err.message}`);
+              console.log(err);
+              
             })
         })
         .catch((error) => {

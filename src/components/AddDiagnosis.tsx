@@ -52,17 +52,16 @@ export default function NewDiagnosisForm(props) {
             response.data.DocName, response.data.DocType, response.data.userAadhar, response.data.RSAencryptedcipherKey).
             then(
               (response) => {
-
-                alert("Diagnosis added")
+                // alert("Diagnosis added")
               }
             ).catch((error) => {
-                alert("Error Occured", error)
+                // alert("Error Occured", error)
             })
         })
         .catch((error) => {
           if ("response" in error){
             if ("data" in error.response){
-                alert(error.response.data.message)
+                // alert(error.response.data.message)
             }
             console.log(error.response.data.message)
           }
