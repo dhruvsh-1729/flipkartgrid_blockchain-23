@@ -5,20 +5,15 @@ import {
     FormControl,
     FormLabel,
     Input,
-    InputGroup,
-    HStack,
-    InputRightElement,
     Stack,
     Button,
     Heading,
     Text,
     useColorModeValue,
     Link,
-    RadioGroup,
-    Radio,
+    Select,
     createStandaloneToast,
-    Highlight,
-    useDisclosure
+
 } from '@chakra-ui/react'
 
 import { Fade, ScaleFade, Slide, SlideFade, Collapse } from '@chakra-ui/react'
@@ -37,13 +32,14 @@ export default function PatientAppointment() {
     const [newDiagnosis, setNewDiagnosis] = useState({
         name: thisuser.name,
         aadhar: thisuser.aadhar,
-        doctorAadhar:"",
+        privateKey: "",
+        doctorAadhar: "",
         symptoms: "",
     })
 
-    useEffect(()=>{
-        console.log(newDiagnosis);  
-    },[newDiagnosis])
+    useEffect(() => {
+        console.log(newDiagnosis);
+    }, [newDiagnosis])
 
     const [loading, setLoading] = useState(false);
 
@@ -67,9 +63,14 @@ export default function PatientAppointment() {
     const handleSubmit = async (event) => {
         event.preventDefault()
 
-        await makeAppointment(thisuser.aadhar, newDiagnosis.symptoms,  newDiagnosis.doctorAadhar )
-        console.log("added appointment" ,newDiagnosis)
+        const appointment = await makeAppointment(thisuser.aadhar, newDiagnosis.symptoms, newDiagnosis.doctorAadhar)
+            .catch(err => console.log(err));
+
+        console.log("added appointment", newDiagnosis)
     }
+
+
+    const mock = [{id:1,name:"Peter MC1",aadhar:"12345671"},{id:2,name:"Peter MC2",aadhar:"12345672"},{id:3,name:"Peter MC3",aadhar:"12345673"}]
     return (
         <>
             <Flex
@@ -98,29 +99,25 @@ export default function PatientAppointment() {
                                     value={newDiagnosis.privateKey} onChange={handleChange} />
                             </FormControl>
 
-                            <FormControl id="diagnosis" isRequired>
-                                <FormLabel>Diagnosis Subject</FormLabel>
-                                <Input type="text" name="diagnosis"
-                                    value={newDiagnosis.diagnosis} onChange={handleChange} />
+                            <FormControl id="doctor" isRequired>
+                            <FormLabel>Doctor</FormLabel>
+                            <Select placeholder='Select Doctor' onChange={e=>{
+                                const { target } = e;
+                                if (target.type === 'select-one') {
+                                   const selectValue = target.selectedOptions[0].value;
+                                   setNewDiagnosis(prev=>({...prev,doctorAadhar:selectValue}))
+                                }
+                            }}>
+                                {(mock && mock.length)? mock.map(doctor => {
+                                    return(
+                                        <>
+                                        <option key={doctor.id} value={doctor.aadhar}>{doctor.name}</option>
+                                        </>
+                                    )
+                                }):""}
+                            </Select>
                             </FormControl>
 
-                            <FormControl id="docType" isRequired>
-                                <FormLabel>Document Type</FormLabel>
-                                <Input type="text" name="docType"
-                                    value={newDiagnosis.docType} onChange={handleChange} />
-                            </FormControl>
-
-                            <FormControl id="doctorName" isRequired>
-                                <FormLabel>Doctor Name</FormLabel>
-                                <Input type="text" name="doctorName"
-                                    value={newDiagnosis.doctorName} onChange={handleChange} />
-                            </FormControl>
-
-                            <FormControl id="document" isRequired>
-                                <FormLabel>Medical Document</FormLabel>
-                                <Input type="text" name="document"
-                                    value={newDiagnosis.document} onChange={handleChange} />
-                            </FormControl>
 
                             <FormControl id="symptoms" isRequired>
                                 <FormLabel>Symptoms</FormLabel>

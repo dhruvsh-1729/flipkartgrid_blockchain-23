@@ -101,6 +101,13 @@ export default function PatientAddDiag() {
                 
             });
     }
+
+    const handleDocumentHash = async (e)=>{
+        e.preventDefault();
+        //call your api and get the document hash from IPFS from the response and add the following line
+        const val = "bhrb2iue3uidbi2fbib" //example hash
+        setNewDiagnosis(prev=>({...prev, document:val}))
+    }
     return (
         <>
             <Flex
@@ -149,9 +156,23 @@ export default function PatientAddDiag() {
 
                             <FormControl id="document" isRequired>
                                 <FormLabel>Medical Document</FormLabel>
-                                <Input type="text" name="document"
-                                    value={newDiagnosis.document} onChange={handleChange} />
+                                <Input type="file" name="document" />
+                                    <Button
+                                    loadingText="Submitting"
+                                    size="md"
+                                    bg={'orange.400'}
+                                    color={'white'}
+                                    _hover={{
+                                        bg: 'red.500',
+                                    }}
+                                    onClick={(e) => {
+                                        handleDocumentHash(e);
+                                    }}>
+                                    Upload Document
+                                </Button>
                             </FormControl>
+
+                            
 
                             <FormControl id="symptoms" isRequired>
                                 <FormLabel>Symptoms</FormLabel>
