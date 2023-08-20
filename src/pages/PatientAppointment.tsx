@@ -28,6 +28,16 @@ const { toast, ToastContainer } = createStandaloneToast();
 export default function PatientAppointment() {
     const [user, setUser] = useSessionStorage('user', JSON.stringify({}));
     const thisuser = JSON.parse(user);
+    const [mock, setMock] = useState([])
+    
+
+    useEffect(() => {
+        async function fetchData() {
+            const response = await axios.get("http://localhost:4000/api/DoctorList");
+            setMock(response.data.data);
+        }
+        fetchData();
+    }, []);
 
     const [newDiagnosis, setNewDiagnosis] = useState({
         name: thisuser.name,
@@ -63,14 +73,62 @@ export default function PatientAppointment() {
     const handleSubmit = async (event) => {
         event.preventDefault()
 
-        const appointment = await makeAppointment(thisuser.aadhar, newDiagnosis.symptoms, newDiagnosis.doctorAadhar)
-            .catch(err => console.log(err));
+        // console.log("newDiagnosis ", newDiagnosis)
+        setNewDiagnosis(prev=>({
+            ...prev, 
+            privateKey: newDiagnosis.privateKey.replace(/\\n/g, '\n')
+        }))
+        
+        const url =  'http://localhost:4000/api/makeAppointment'
+        let config = {
+          maxBodyLength: Infinity,
+          headers: { 
+            'Content-Type': 'application/json'
+          }
+        };
+        console.log("Making the call")
+        axios.post(url, newDiagnosis, config)
+        .then(async (response) => {
+          console.log(response.data)
+          console.log(JSON.stringify(response.data));
+        
+          console.log("hashedAadhar ", response.data.hashedAadhar)
+          console.log("symptons ", response.data.symptons)
+          console.log("docAadhar ", newDiagnosis.doctorAadhar)
+          console.log("AESencrypt ", response.data.AESencryptForDoctor)
+          console.log("rsa ", response.data.rsa)
+          console.log("encyptedDocName ", response.data.encyptedDocName)
+          await makeAppointment(response.data.hashedAadhar,response.data.symptoms , newDiagnosis.doctorAadhar,
+            response.data.AESencryptForDoctor, response.data.rsa,response.data.encryptedDoctorName).
+            then(res=>{
+              alert("Appointment Added")
+            }).catch(err=>{
+              alert(`Error Occured + ${err.message}`);
+            })
+        })
+        .catch((error) => {
+          if ("response" in error){
+            if ("data" in error.response){
+                alert(error.response.data.message)
+            }
+            console.log(error.response.data.message)
+          }
+          else{
+          console.log("Error Occured");
+          }
+        });
+        // const appointment = await makeAppointment(thisuser.aadhar, newDiagnosis.symptoms, newDiagnosis.doctorAadhar)
+        //     .catch(err => console.log(err));
 
-        console.log("added appointment", newDiagnosis)
+        // console.log("added appointment", newDiagnosis)
     }
 
+    // useEffect(() => {
+    //     setMock([{id:1,name:"Peter MC1",aadhar:"12345671"},{id:2,name:"Peter MC2",aadhar:"12345672"},{id:3,name:"Peter MC3",aadhar:"12345673"}])
+    
+    // }, [mock])
+   
 
-    const mock = [{id:1,name:"Peter MC1",aadhar:"12345671"},{id:2,name:"Peter MC2",aadhar:"12345672"},{id:3,name:"Peter MC3",aadhar:"12345673"}]
     return (
         <>
             <Flex

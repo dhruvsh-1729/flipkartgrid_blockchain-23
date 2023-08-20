@@ -30,10 +30,17 @@ const PatientHome = () => {
                 'Content-Type': 'application/json'
             }
         }
+        setKey(prev=>(
+          {
+            ...prev,
+            privateKey: prev.privateKey.replace(/\\n/g, '\n')
+          }
+        ))
         const response = await axios.post("http://localhost:4000/api/get_diagnosis",key,config);
 
-        const { message, data } = response.data;
-        console.log(data)
+        const { message, data, doctorAccess } = response.data;
+        console.log("doctorAccess: " ,  doctorAccess)
+        // console.log(data)
         
         const newDiagnosisElements = data.map((item:any) => (
           <UserDiagnosis
@@ -85,7 +92,7 @@ const PatientHome = () => {
         }}>
         Show Diagnosis
     </Button>
-        <SimpleGrid columns={{base:1,md:3}} spacing={10}>
+        <SimpleGrid columns={{base:2,md:1}} spacing={10}>
             {history}
         </SimpleGrid>
     </Stack>

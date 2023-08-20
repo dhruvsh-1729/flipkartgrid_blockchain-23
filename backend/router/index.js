@@ -5,6 +5,59 @@ const RSA = require("./RSA")
 const encryptionKey = require("./encryption")
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken')
+const multer = require('multer');
+const pinataSDK = require('@pinata/sdk');
+const fs = require('fs');
+const { Readable } = require('stream'); 
+
+const pinata = new pinataSDK("5284b7b23e2439ac77fa", "204fe8bf966d0ef42263c5d20ce72b74da0d700d15fbba123dd1d68417855e1a")
+const upload = multer().single('document')
+router.post('/upload', (req, res) => {
+    console.log('Request body:', req.body);
+    console.log('Request file:', req.file);
+
+    upload(req, res, async (uploadError) => {
+        if (uploadError) {
+            console.error('Error uploading:', uploadError);
+            return res.status(400).json({ message: 'Error uploading file' });
+        }
+
+        console.log('Uploaded file:', req.file);
+
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        const fileBuffer = req.file.buffer;
+
+        try {
+            // Create a readable stream from the Buffer data
+            const fileStream = new Readable();
+            fileStream.push(fileBuffer);
+            fileStream.push(null); // Signal the end of the stream
+
+            // Upload to Pinata IPFS
+            const options = {
+                pinataMetadata: {
+                    name: 'File',
+                },
+                pinataOptions: {
+                    cidVersion: 0,
+                },
+            };
+            const ipfsResponse = await pinata.pinFileToIPFS(fileStream, options);
+
+            res.status(200).json({
+                ipfsResponse,
+                fileHash: fileBuffer.toString(),
+                document: "https://gateway.pinata.cloud/ipfs/"+ipfsResponse.IpfsHash
+            });
+        } catch (error) {
+            console.error('Error uploading to IPFS:', error);
+            res.status(500).json({ message: 'Internal server error' });
+        }
+    });
+});
 
 router.post("/getDiagnostic", async (req, res) => {
     const storageObj = await storage();
@@ -99,6 +152,7 @@ router.post("/login", async (req, res) => {
 })
 
 router.post("/makeDiagnosis", async (req, res)=>{
+    try{
     const AadharHash = crypto.createHash('sha256').update(req.body.aadhar).digest('hex');
     let {key, rsa} = await getAESkey(AadharHash, req.body.privateKey)
     key = JSON.parse(key)
@@ -139,30 +193,35 @@ router.post("/makeDiagnosis", async (req, res)=>{
         userAadhar: AadharHash,
         RSAencryptedcipherKey: rsa
     })
+    }
+    catch (e) {
+        return res.status(500).json({
+            "message": "Most likely the private key was not valid",
+            error: e.message
+        });}
 
 })
 
 router.post("/get_diagnosis", async (req, res) => {
-    const storageObj = await storage();
+    try{
+        const storageObj = await storage();
     const Aadhar = crypto.createHash('sha256').update(req.body.aadhar).digest('hex');
 
     let {key, rsa} = await getAESkey(Aadhar, req.body.privateKey)
     key = JSON.parse(key)
 
     let doctorAccess = []
+    for (doc in storageObj.patient_visibility[Aadhar]){
+        if (storageObj.patient_visibility[Aadhar][doc] !== "0"){
+            doctorAccess.push(doc)
+        }
+    }
 
     let diagnosis_list = [];
     for( var id in storageObj.patient_diagnosis[Aadhar]){
-        let acess = storageObj.diagnosis_visibility[storageObj.patient_diagnosis[Aadhar][id]]
-        let otherAcess = []
-        for (field in acess){
-            if (field!=Aadhar){
-                otherAcess.push(field)
-            }
-        }
+        
         diagnosis_list.push({data: storageObj.diagnosis_list[storageObj.patient_diagnosis[Aadhar][id]], 
-        loc: storageObj.patient_diagnosis[Aadhar][id], 
-        access: otherAcess})
+        loc: storageObj.patient_diagnosis[Aadhar][id]})
     }
 
     for(var i=0; i<diagnosis_list.length; i++){
@@ -184,8 +243,17 @@ router.post("/get_diagnosis", async (req, res) => {
 
     return res.status(200).json({
         data: diagnosis_list,
-        message: "Success"
+        message: "Success",
+        doctorAccess: doctorAccess
     });
+
+    }
+    catch (e) {
+        return res.status(500).json({
+            message: "Error",
+            reference: e 
+        });
+    }
 });
 
 
@@ -358,39 +426,73 @@ router.post("/getPatientData", (req, res) => {
         message: "success"
     })
 })
-
 router.post("/makeAppointment", async (req, res) => {
     // req.body.doctorAadhar, 
     // req.body.aadhar
 
-
+    try{
     const storageObj = await storage();
     const Aadhar = crypto.createHash('sha256').update(req.body.aadhar).digest('hex');
+
+    
 
     let {key, rsa} = await getAESkey(Aadhar, req.body.privateKey)
     key = JSON.parse(key)
 
+    
+
     const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
     let symptoms = cipher.update(req.body.symptoms, 'utf-8', 'hex');
     symptoms += cipher.final('hex');
+
 
     const doctorName = storageObj.doc_info[req.body.doctorAadhar].name;
     const cipher2 = crypto.createCipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
     let encryptedDoctorName = cipher2.update(doctorName, 'utf-8', 'hex');
     encryptedDoctorName += cipher2.final('hex');
 
+
+    
+
     const doctorPublicKey = storageObj.public_keys[req.body.doctorAadhar];
-    console.log(doctorPublicKey);
+    // console.log(doctorPublicKey);
 
-    const AESencryptForDoctor = RSA.encryptMessage(JSON.stringify(key), doctorPublicKey);
+    let stringkey = JSON.stringify(key);
+    const AESencryptForDoctor = RSA.encryptMessage(stringkey, doctorPublicKey);
 
-    return res.status(200).json({
+
+     return res.status(200).json({
         message: "success",
         AESencryptForDoctor: AESencryptForDoctor,
         symptoms: symptoms,
         rsa: rsa,
         hashedAadhar: Aadhar,
         encryptedDoctorName: encryptedDoctorName
+    })
+    }
+    catch (err) {
+        return res.status(500).json({
+            error: err.message,
+            input: req.body
+        });
+    }
+})
+
+router.get('/DoctorList', async (req, res) => {
+    const storageObj = await storage();
+
+    let doctorList = [];
+    for (let field in storageObj.doc_info){
+        doctorList.push({
+            name: storageObj.doc_info[field].name,
+            aadhar: field ,
+            id: field
+        })
+    }
+
+    return res.status(200).json({
+        "data": doctorList,
+        "message": "Successfully compiled the list of doctors"
     })
 })
 module.exports = router

@@ -15,6 +15,7 @@ import Error from './pages/Error';
 
 import {useSessionStorage} from './utils/useSessionStorage'
 import PatientProfile from "./pages/PatientProfile";
+import Welcome from "./pages/Welcome";
 
 const App: React.FC = () => {
 
@@ -34,7 +35,8 @@ const App: React.FC = () => {
       <Navbar />
       {loggedIn && login==="true" && token.length && <NewSidebar />}
       <Routes>
-        <Route path="/" element={<RegistrationForm />} />
+        <Route path="/" element={<Welcome />} />
+        <Route path="/register" element={<RegistrationForm />} />
         <Route path="/login" element={<Login />} />
         <Route path="/patient_home" element={(login==="true" && token.length) ? <PatientHome />:<Error />} />
         <Route path="/patient_profile" element={(login==="true" && token.length) ? <PatientProfile />:<Error />} />

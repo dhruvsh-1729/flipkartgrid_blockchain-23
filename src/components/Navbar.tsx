@@ -60,7 +60,7 @@ const Navbar: React.FC = () => {
   return (
     <div className="navbar navbar-dark bg-dark fixed-top">
       <div className="container py-2">
-        <Link to={login==="true" && token.length ? `/patient_home`:`/login`} className="navbar-brand">
+        <Link to={login==="true" && token.length ? `/patient_home`:`/`} className="navbar-brand">
           Health Record Management
         </Link>
         <span style={{color:'white', fontWeight:600, fontSize:'1rem'}}>
