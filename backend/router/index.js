@@ -120,6 +120,7 @@ router.post("/login", async (req, res) => {
         });
     }
     else{
+        const aadhar = req.body.aadhar;
         const AadharHash = crypto.createHash('sha256').update(req.body.aadhar).digest('hex');
         
         if (AadharHash in storageObj.patient_info){
@@ -142,11 +143,24 @@ router.post("/login", async (req, res) => {
             let age = decipher3.update(storageObj.patient_info[AadharHash].age, 'hex', 'utf-8');
             age += decipher3.final('utf-8');
 
+            const payload = {
+                name,age,sex
+            }
+
+            const options = {
+                expiresIn: '1h'
+            }
+
+            const token = jwt.sign(payload, process.env.JWT_SECRET,options)
+
+
             return res.status(200).json({
                 message: "Success",
                 name: name,
                 age: age, 
                 sex: sex,
+                aadhar,
+                token
             })
         }
         catch(err){
@@ -205,6 +219,7 @@ router.post("/makeDiagnosis", async (req, res)=>{
 })
 
 router.post("/get_diagnosis", async (req, res) => {
+    try{
     const storageObj = await storage();
     const Aadhar = crypto.createHash('sha256').update(req.body.aadhar).digest('hex');
 
@@ -247,6 +262,13 @@ router.post("/get_diagnosis", async (req, res) => {
         message: "Success",
         doctorAccess: doctorAccess
     });
+    }
+    catch(err){
+        return res.status(500).json({
+            message: "Error",
+            error: err
+        })
+    }
 });
 
 router.get("/newUser", (req, res) => {
@@ -398,9 +420,7 @@ router.post("/getPatientData", (req, res) => {
 })
 
 router.post("/makeAppointment", async (req, res) => {
-    // req.body.doctorAadhar, 
-    // req.body.aadhar
-
+    try{
 
     const storageObj = await storage();
     const Aadhar = crypto.createHash('sha256').update(req.body.aadhar).digest('hex');
@@ -430,6 +450,14 @@ router.post("/makeAppointment", async (req, res) => {
         hashedAadhar: Aadhar,
         encryptedDoctorName: encryptedDoctorName
     })
+    }
+    catch(err){
+        console.log(err);
+        return res.status(400).json({
+            message: "error"
+        })
+    }
+    
 })
 
 router.post("/doctorlogin", async (req, res) => {
@@ -466,6 +494,8 @@ else{
 })
 
 router.post("/getDoctorViewList", async (req, res) => {
+
+    try{
     const storageObj = await storage();
 
     let patients = {}
@@ -507,9 +537,18 @@ router.post("/getDoctorViewList", async (req, res) => {
             data: patients
         })
     }
+    }
+    catch(err){
+        console.log(err);
+        return res.status(400).json({
+            message: "error"
+        })
+    }
 })
 
 router.post("/doctorViewDiagnosis",  async(req, res)=>{
+
+    try{
     const storageObj = await storage();
     
     const decruptedMessage = RSA.decryptMessage(req.body.encryptedAESKEY, req.body.privateKey);
@@ -544,7 +583,31 @@ router.post("/doctorViewDiagnosis",  async(req, res)=>{
         key: decruptedMessage,
         diagnosis_list: diagnosis_list
     })
+    }
+    catch(err){
+        console.log(err);
+        return res.status(400).json({
+            message: "error"
+        })
+    }
 })
 
+router.get('/DoctorList', async (req, res) => {
+    const storageObj = await storage();
+
+    let doctorList = [];
+    for (let field in storageObj.doc_info){
+        doctorList.push({
+            name: storageObj.doc_info[field].name,
+            aadhar: field ,
+            id: field
+        })
+    }
+
+    return res.status(200).json({
+        "data": doctorList,
+        "message": "Successfully compiled the list of doctors"
+    })
+})
 
 module.exports = router

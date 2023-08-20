@@ -33,7 +33,7 @@ const PatientHome = () => {
         setKey(prev=>(
           {
             ...prev,
-            privateKey: prev.privateKey.replace(/\\n/g, '\n')
+            privateKey: key.privateKey.replace(/\\n/g, '\n')
           }
         ))
         const response = await axios.post("http://localhost:4000/api/get_diagnosis",key,config);

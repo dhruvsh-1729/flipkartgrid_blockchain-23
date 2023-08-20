@@ -24,23 +24,6 @@ const EditDiagnosis = ({user, diag}) => {
 
     const update = async (e) => {
         e.preventDefault();
-
-        
-
-        //   console.log("docgor = ", Doctor.aadhar );
-        //   console.log("patientA = ", user.Aadhar );
-        //   console.log("loc = ", diag.loc);
-        //   console.log("loc = ", diag)
-
-      
-        //   console.log(response.data);
-
-
-        
-
-
-
-
         let fileDocument = '';
         if (selectedFile) {
             const formData = new FormData();

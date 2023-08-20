@@ -40,6 +40,12 @@ const Navbar: React.FC = () => {
     JSON.stringify({})
   );
 
+  let User={};
+
+  if(login==="true"){
+    User=JSON.parse(user)
+  }
+
   const navigate = useNavigate();
   const menuItems = [
     { icon: FaUser, label: 'Profile', link:'/doctor_profile'},
@@ -96,7 +102,7 @@ const Navbar: React.FC = () => {
           Health Record Management
         </a>
       {(login==="true" && token.length)? <VStack spacing={1} align="stretch" flex={1} flexDirection='row' ml={'2rem'}>
-        {menuItems.map((item, index) => (
+        {User?.speciality!==undefined && menuItems.map((item, index) => (
           <NavbarItem key={index} icon={item.icon} label={item.label} />
         ))}
         <Flex align="center" p={2} cursor="pointer" 
@@ -109,9 +115,9 @@ const Navbar: React.FC = () => {
         navigate('/doctor_login')
       }}
       >
-        <Icon as={FaSignOutAlt} mr={2} color={'lightgreen'} />
+        {User?.speciality!==undefined && <><Icon as={FaSignOutAlt} mr={2} color={'lightgreen'} />
        <Text style={{position:'relative',top:'.5rem',display:'flex',justifyContent:'center',alignContent:'center',alignItems:'center',fontSize:'1rem',color:'white',transition:"0.5s all ease"}}
-        >Logout</Text>
+        >Logout</Text></>}
       </Flex>
       </VStack>:""}
         <div className="d-flex">

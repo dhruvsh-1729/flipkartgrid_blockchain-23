@@ -30,6 +30,11 @@ const App: React.FC = () => {
   const [user,setUser] = useSessionStorage('user',JSON.stringify({}));
   const [login,setLogin] = useSessionStorage('login',false);
 
+  let User={}
+  
+  if(login==="true")
+  { User = JSON.parse(user);}
+
   useEffect(()=>{
     if(login==="true") setLoggedIn(true);
     else setLoggedIn(false);
@@ -39,7 +44,7 @@ const App: React.FC = () => {
   return (
     <div className="h-100">
       <Navbar />
-      {loggedIn && login==="true" && token.length && <NewSidebar />}
+      {loggedIn && login==="true" && token.length && User?.speciality===undefined &&<NewSidebar /> }
       <Routes>
         <Route path="/register" element={<RegistrationForm />} />
         <Route path="/login" element={<Login />} />
