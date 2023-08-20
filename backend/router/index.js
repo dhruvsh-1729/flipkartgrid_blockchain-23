@@ -359,8 +359,33 @@ router.post("/getDoctorViewList", async (req, res) => {
 
     let patients = {}
     for (field in storageObj.doc_visibility[req.body.aadhar]){
-        if (storageObj.doc_visibility[req.body.aadhar][field]!=="")
-            patients[field] = storageObj.doc_visibility[req.body.aadhar][field];
+        if (storageObj.doc_visibility[req.body.aadhar][field]!==""){
+            const patientData = storageObj.patient_info[field];
+            let key = JSON.parse(RSA.decryptMessage(storageObj.doc_visibility[req.body.aadhar][field], 
+                req.body.privateKey));
+
+            const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
+            let name = decipher.update(Buffer.from(patientData.name, 'hex'), 'hex', 'utf-8');
+            name += decipher.final('utf-8');
+
+
+            const decipher2 = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
+            let sex = decipher2.update(Buffer.from(patientData.sex, 'hex'), 'hex', 'utf-8');
+            sex += decipher2.final('utf-8');
+
+            const decipher3 = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
+            let dob = decipher3.update(Buffer.from(patientData.age, 'hex'), 'hex', 'utf-8');
+            dob += decipher3.final('utf-8');
+
+            patients[field] = {
+                "aesEncryption" :storageObj.doc_visibility[req.body.aadhar][field],
+                "aesDecrypted": RSA.decryptMessage(storageObj.doc_visibility[req.body.aadhar][field], 
+                    req.body.privateKey),
+                "name": name, 
+                "sex": sex, 
+                "dob": dob
+                }
+            }
     }
 
     if (req.body.aadhar in storageObj.doc_visibility){
@@ -373,8 +398,11 @@ router.post("/getDoctorViewList", async (req, res) => {
 
 router.post("/doctorViewDiagnosis",  async(req, res)=>{
     const storageObj = await storage();
+    
     const decruptedMessage = RSA.decryptMessage(req.body.encryptedAESKEY, req.body.privateKey);
     let key = JSON.parse(decruptedMessage)
+
+    
 
     let Aadhar = req.body.aadhar
     let diagnosis_list = [];
