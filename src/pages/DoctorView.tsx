@@ -163,7 +163,7 @@ console.log(patientDiagnosis);
         {patientDiagnosis.map(item=>{return(<>
           <DiagnosisCard docType={item.data.docType} document={item.data.document} symptoms={item.data.symptoms}
                 diagnosis={item.data.diagnosis} doctorName={item.data.doctorName} patientName={item.data.patientName} 
-                viewEdit={() => viewEdit(item)}/>
+                viewEdit={() => viewEdit(item)} upload={true}/>
         </>)})}
         </Stack>
       </Stack>:""}

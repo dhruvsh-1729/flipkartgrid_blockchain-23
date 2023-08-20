@@ -2,10 +2,13 @@ import { Stack, Text, Button } from '@chakra-ui/react'
 import {BsGenderFemale, BsGenderMale, BsGenderAmbiguous} from 'react-icons/bs'
 
 interface ICardProps {
-    docType:string, document:string, symptoms:string, diagnosis:string, doctorName:string, patientName:string
+    docType:string, document:string, symptoms:string,
+     diagnosis:string, doctorName:string, patientName:string
+     ,upload:boolean
 }
 
-export default function DiagnosisCard({viewEdit, docType, document, symptoms, diagnosis, doctorName, patientName}:ICardProps) {
+export default function DiagnosisCard({viewEdit, docType, document,
+   symptoms, diagnosis, doctorName, patientName, upload}:ICardProps) {
 
   return (
     <Stack p="4" boxShadow="lg" m="4" borderRadius="sm" maxW={'20vw'} 
@@ -29,12 +32,12 @@ export default function DiagnosisCard({viewEdit, docType, document, symptoms, di
         <Text fontSize={{ base: 'lg' }} textAlign={'left'} maxW={'4xl'}>
           Document: {document} &nbsp;
         </Text>  
-        <Stack direction={{ base: 'column', md: 'row' }}>
+        {upload && <Stack direction={{ base: 'column', md: 'row' }}>
           <Button variant="outline" colorScheme="green"
           onClick={viewEdit} >
             Edit to upload
           </Button>
-        </Stack>
+        </Stack>}
       </Stack>
     </Stack>
   )

@@ -46,9 +46,11 @@ export default function AddAppointment(props) {
           await makeAppointment(response.data.hashedAadhar,response.data.symptoms , newDiagnosis.doctorAadhar,
             response.data.AESencryptForDoctor, response.data.rsa,response.data.encryptedDoctorName).
             then(res=>{
-              alert("Appointment Added")
+              console.log(res);
+              
             }).catch(err=>{
-              alert("Error Occured", err)
+            console.log(err);
+            
             })
         })
         .catch((error) => {
