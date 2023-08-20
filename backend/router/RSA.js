@@ -39,21 +39,4 @@ function decryptMessage(encryptedMessage, privateKey) {
   return decrypted.toString('utf-8');
 }
 
-// // Generate a new key pair
-// const keys = generateKeyPair();
-
-// // Message to encrypt
-// const originalMessage = 'Hello, this is a secret message!';
-
-// // Encrypt the message using the public key
-// const encryptedMessage = encryptMessage(originalMessage, keys.publicKey);
-
-// console.log('Encrypted Message:', encryptedMessage);
-
-// // Decrypt the encrypted message using the private key
-// const decryptedMessage = decryptMessage(encryptedMessage, keys.privateKey);
-
-// console.log('Decrypted Message:', decryptedMessage);
-
-
 module.exports = {createUser, encryptMessage, decryptMessage}

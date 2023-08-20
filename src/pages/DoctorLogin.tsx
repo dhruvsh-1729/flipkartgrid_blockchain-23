@@ -33,14 +33,28 @@ export default function SignupCard() {
 
     const [loading, setLoading] = useState(false);
 
+    const [UserDiagnosis, setUserDiagnosis] = useState([])
+
     const allFieldsFilled = () => {
         const values = Object.values(form);
         return values.every(value => value.trim().length > 0);
     }
 
     const handleSubmit = async () =>{
-        
-        
+        const response = await axios.post("http://localhost:4000/api/getDoctorViewList", {
+            aadhar: form.aadhar,
+            privateKey: form.privateKey.replace(/\\n/g, '\n')
+            });
+      
+            console.log(response.data)
+            const {message, data} = response.data;
+
+            let temp = [];
+            for (let field in data) {
+            temp.push({...data[field], "Aadhar": field});
+            }
+            setUserDiagnosis(temp);
+            console.log("logged In Successfully")
     }
     return (
         <>

@@ -31,7 +31,6 @@ export const addDoctor = async(speciality:string, userAadhar:string, sex:string,
                 speciality, userAadhar).send();
     
             await op.confirmation(1);
-            
         }
         catch (error){
             throw error;

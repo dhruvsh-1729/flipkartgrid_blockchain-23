@@ -9,6 +9,7 @@ import RegistrationForm from "./pages/Register";
 import Login from './pages/Login';
 import DoctorLogin from "./pages/DoctorLogin";
 import DoctorView from "./pages/DoctorView";
+import DoctorRegister from "./pages/DoctorRegister";
 
 const App: React.FC = () => {
 
@@ -20,6 +21,7 @@ const App: React.FC = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/DoctorLogin" element={<DoctorLogin />} />
         <Route path="/DoctorView" element={<DoctorView/> } />
+        <Route path="/DoctorRegister" element={<DoctorRegister />} />
       </Routes>
     </div>
   );

@@ -174,8 +174,8 @@ router.post("/get_diagnosis", async (req, res) => {
 router.get("/newUser", (req, res) => {
     const u = RSA.createUser()
     return res.status(200).json({
-        private: u.keys.privateKey,
-        public: u.keys.publicKey,
+        private: JSON.stringify(u.keys.privateKey),
+        public: JSON.stringify(u.keys.publicKey),
         message: "Success"
     })
 })
@@ -435,5 +435,5 @@ router.post("/doctorViewDiagnosis",  async(req, res)=>{
     })
 })
 
-router.post("")
+
 module.exports = router
