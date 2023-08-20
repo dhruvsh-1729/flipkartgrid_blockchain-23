@@ -2,7 +2,7 @@ const axios = require("axios")
 const RSA = require("./RSA")
 async function storage(){
     const res = await axios.get(
-        "https://api.ghostnet.tzkt.io/v1/contracts/KT1Jaa9gds336gNj5nUasV8hA6vXkn1Q45vi/storage"
+        "https://api.ghostnet.tzkt.io/v1/contracts/KT1J6DYrKbMomK6zs9uYqD6Cn92s8uRy5NCM/storage"
     )
     return res.data;
 };

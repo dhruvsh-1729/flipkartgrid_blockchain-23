@@ -23,6 +23,7 @@ import { useEffect, useState } from 'react'
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
 import { showToast } from '../utils/showToasts';
 import {useSessionStorage} from './../utils/useSessionStorage'
+import {useNavigate} from 'react-router-dom'
 
 const { toast, ToastContainer } = createStandaloneToast();
 
@@ -34,6 +35,7 @@ export default function SignupCard() {
 
     const [loading, setLoading] = useState(false);
 
+    const navigate = useNavigate();
     const allFieldsFilled = () => {
         const values = Object.values(form);
         return values.every(value => value.trim().length > 0);
@@ -56,10 +58,11 @@ export default function SignupCard() {
     axios.post(url, form, config)
       .then((response) => {
         console.log(response.data)
-        const {message, name, age, sex, token} = response.data;
+        const {message, name, age, sex, aadhar, token} = response.data;
         setSessionLogin(true);
         setSessionToken(token);
-        setSessionUser(JSON.stringify({name,age,sex,token}))
+        setSessionUser(JSON.stringify({name,age,sex,aadhar}))
+        navigate('/patient_home')
       })
       .catch((error) => {
         console.log(error.message)
