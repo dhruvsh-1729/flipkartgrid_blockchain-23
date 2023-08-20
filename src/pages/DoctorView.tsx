@@ -1,156 +1,189 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-    Flex,
-    Box,
-    FormControl,
-    FormLabel,
-    Input,
-    InputGroup,
-    HStack,
-    InputRightElement,
-    Stack,
-    Button,
-    Heading,
-    Text,
-    useColorModeValue,
-    Link,
-    RadioGroup,
-    Radio,
-    createStandaloneToast
-} from '@chakra-ui/react'
-import UserInfo from "../components/UserInfo";
+  Flex,
+  Box,
+  FormControl,
+  FormLabel,
+  Input,
+  Stack,
+  Button,
+  Text,
+  useColorModeValue,
+  Heading,
+} from "@chakra-ui/react";
+import {BsGenderFemale, BsGenderMale, BsGenderAmbiguous} from 'react-icons/bs'
 
-import axios from 'axios';
+
+import axios from "axios";
+import { useSessionStorage } from "../utils/useSessionStorage";
+import Card from "../components/Card";
+import DiagnosisCard from "../components/DiagnosisCard";
+import EditDiagnosis from "../components/EditDiagnosis";
+
+interface IItem {
+  name: string;
+  age: string;
+  sex: string;
+  aesEncryption: string;
+  aesDecrypted: string;
+}
 
 export default function DoctorView() {
-    const [docForm , setDocForm] = useState({
-        name: 'Amae',
-        age: "dsg", 
-        aadhar: "asdgasd",
-        sex: "sdafds", 
-        privateKey: ""
-    })
-    const [onePatient, setOnePatient] = useState(false)
-    const [onePatientDiagnosis, setOnePatientDiagnosis] = useState([])
+  const [docForm, setDocForm] = useState({
+    privateKey: "",
+  });
 
-    const [UserDiagnosis, setUserDiagnosis] = useState([])
+  const [user, setUser] = useSessionStorage("user", JSON.stringify({}));
+  const User = JSON.parse(user);
 
-    async function getDiagnosis(){
-        
-        const response = await axios.post("http://localhost:4000/api/getDoctorViewList", {
-            aadhar: docForm.aadhar,
-            privateKey: docForm.privateKey.replace(/\\n/g, '\n')
-            });
-      
-            console.log(response.data)
-            const {message, data} = response.data;
+  const { aadhar, ...rest } = User;
 
-            let temp = [];
-            for (let field in data) {
-            temp.push({...data[field], "Aadhar": field});
-            }
-            setUserDiagnosis(temp);
-            setOnePatient(false)
-        }
-        
+  const [UserDiagnosis, setUserDiagnosis] = useState([]);
 
+  async function getDiagnosis() {
+    const response = await axios.post(
+      "http://localhost:4000/api/getDoctorViewList",
+      {
+        aadhar,
+        privateKey: docForm.privateKey.replace(/\\n/g, "\n"),
+      }
+    );
 
-        function change(event){
-            const {name, value} = event.target;
-            setDocForm(prev => (
-                {
-                    ...prev,
-                    [name] : value
-                }
-            ))
-        }
+    console.log(response.data);
+    const { message, data } = response.data;
 
-        async function oneDiagnosis(item){
-            const response = await axios.post("http://localhost:4000/api/doctorViewDiagnosis", {
-              aadhar: item.Aadhar,
-              privateKey: docForm.privateKey.replace(/\\n/g, '\n'),
-              encryptedAESKEY : item.aesEncryption
-              });
-        
-              console.log(response.data)
-              const { message, diagnosis_list } = response.data;
-
-          const formattedDiagnosisList = diagnosis_list.map((diagnosis) => {
-            const {
-              data: { docType, document, symptoms, diagnosis: diag, doctorName, patientName },
-              loc,
-            } = diagnosis;
-            const isDiagnosisClickable = (diag === undefined || diag === null || diag==="") ;
-      
-          return (
-            <Box
-              key={loc} // Use loc as the key
-              borderWidth="1px"
-              borderRadius="lg"
-              p={4}
-              boxShadow="md"
-              cursor={isDiagnosisClickable ? "pointer" : "default"} // Set cursor style based on condition
-              onClick={isDiagnosisClickable ? () => handleDiagnosisClick(loc) : undefined} // Set onClick handler based on condition
-            >
-                <Text>
-                  Patient Name: {patientName}, Doctor: {doctorName}, Symptoms:{" "}
-                  {symptoms}, Diagnosis: {diag}
-                </Text>
-                <Text>Document: {document}, DocType: {docType}</Text>
-              </Box>
-            );
-          });
-
-    setOnePatientDiagnosis(formattedDiagnosisList);
-    setOnePatient(true)
+    let temp = [];
+    for (let field in data) {
+      let ele = { ...data[field], Aadhar: field }
+      temp.push(ele);
+    }
+    setUserDiagnosis(temp);
   }
 
+  function change(event) {
+    const { name, value } = event.target;
+    setDocForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }
 
-  function handleDiagnosisClick(loc) {
+  const [showOne, setShowOne] = useState(false);
+  const [patientDiagnosis, setPatientDiagnosis] = useState([]);
+  const [selectedUser,setSelectedUser] = useState({})
+
+  useEffect(()=>{
+console.log(patientDiagnosis);
+  },[patientDiagnosis])
+
+  async function oneDiagnosis(item) {
+    console.log(item);
+    const response = await axios.post(
+      "http://localhost:4000/api/doctorViewDiagnosis",
+      {
+        aadhar: item.Aadhar,
+        privateKey: docForm.privateKey.replace(/\\n/g, "\n"),
+        encryptedAESKEY: item.aesEncryption,
+      }
+    );
+
+    console.log(response.data);
+    const { message, diagnosis_list } = response.data;
+
+    setSelectedUser(item)
+    setPatientDiagnosis(diagnosis_list);
+    setShowOne(true);
+  }
+
+  function handleDiagnosisClick(loc: string) {
     console.log("Clicked on diagnosis with loc:", loc);
     // Add your logic here to perform actions when a diagnosis element is clicked
   }
-    
-    return (
-        <div className="h-100">
-            <UserInfo form={docForm}/>
-            <Input type="text" placeholder="Aadhar" name="aadhar" value={docForm.aadhar} onChange={change}/>
-            <Input type="text" placeholder="Secret Key" name="privateKey" value={docForm.privateKey} onChange={change} />
-            <Button onClick={getDiagnosis}> Get Patients</Button>
-            {onePatient ? (
-        // Rendering onePatientDiagnosis
-        <div>
-          {onePatientDiagnosis}
-        </div>
-      ) : (
-        // Rendering UserDiagnosis
-        UserDiagnosis && UserDiagnosis.length ? (
-          <Stack mt={4} spacing={4}>
-            {UserDiagnosis.map((item, index) => (
-              <Box
-                key={index}
-                borderWidth="1px"
-                borderRadius="lg"
-                p={4}
-                boxShadow="md"
-                onClick={() => oneDiagnosis(item)}
-              >
-                <Text>
-                  Patient Name: {item.name}, Sex: {item.sex}, DOB: {item.dob}
-                </Text>
-                <Text>AES Encryption: {item.aesEncryption}</Text>
-                <Text>AES Decrypted: {item.aesDecrypted}</Text>
-              </Box>
-            ))}
+
+  const [view, setView] = useState(false)
+  const [currDiag, setCurrDiag] = useState({})
+
+  const viewEdit = (item) => {
+    setView(true)
+    setCurrDiag(item)
+    console.log("item ", item)
+  }
+
+
+
+  return (
+    <Flex
+      minH={"100vh"}
+      justify={"center"}
+      flexDirection={"column"}
+      bg={useColorModeValue("gray.50", "gray.800")}
+    >
+      <Stack spacing={8} mx={"auto"} my={"3rem"} maxW={"40vw"} py={12} px={6}>
+        <Heading lineHeight="tall">Get All Patients</Heading>
+        <Box
+          rounded={"lg"}
+          bg={useColorModeValue("white", "gray.700")}
+          boxShadow={"lg"}
+          p={8}
+        >
+          <Stack spacing={4}>
+            <FormControl id="privateKey" isRequired>
+              <FormLabel>Enter your private key</FormLabel>
+              <Input
+                type="text"
+                placeholder="Secret Key"
+                name="privateKey"
+                value={docForm.privateKey}
+                onChange={(e) => change(e)}
+              />
+            </FormControl>
+            <Button
+              loadingText="Submitting"
+              size="lg"
+              bg={"blue.400"}
+              color={"white"}
+              _hover={{
+                bg: "blue.500",
+              }}
+              onClick={getDiagnosis}
+            >
+              Get Patients
+            </Button>
+          </Stack>
+        </Box>
+      </Stack>
+      {showOne? <Stack spacing={8} maxW={"100vw"} px={6} >
+        {view && <EditDiagnosis 
+        user={selectedUser}
+        diag={currDiag}/>}
+      <Heading fontSize={'2xl'} textAlign={'center'}>
+      All Diagnosis of {selectedUser.name}
+      </Heading>
+      <Stack spacing={4} style={{ flex: 1, flexDirection: "row" }}>
+        {patientDiagnosis.map(item=>{return(<>
+          <DiagnosisCard docType={item.data.docType} document={item.data.document} symptoms={item.data.symptoms}
+                diagnosis={item.data.diagnosis} doctorName={item.data.doctorName} patientName={item.data.patientName} 
+                viewEdit={() => viewEdit(item)}/>
+        </>)})}
+        </Stack>
+      </Stack>:""}
+      <Stack spacing={8} maxW={"100vw"} px={6}>
+      <Heading fontSize={'4xl'} textAlign={'center'}>
+      Your Patients
+      </Heading>
+        {UserDiagnosis && UserDiagnosis.length ? (
+          <Stack spacing={4} style={{ flex: 1, flexDirection: "row" }}>
+            
+            {UserDiagnosis.map((item: IItem, index) => {
+              return <Card item={item} title={item.name} age={item.age} sex={item.sex}
+                aesEncryption={item.aesEncryption} aesDecrypted={item.aesDecrypted}
+              oneDiagnosis={()=>oneDiagnosis(item)} />;
+            })}
           </Stack>
         ) : (
           ""
-        )
-      )}
-            
-        </div>
-    )
-
-
+        )}
+      </Stack>
+    </Flex>
+  );
 }
-

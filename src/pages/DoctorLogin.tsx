@@ -5,35 +5,34 @@ import {
     FormControl,
     FormLabel,
     Input,
-    InputGroup,
-    HStack,
-    InputRightElement,
     Stack,
     Button,
     Heading,
     Text,
     useColorModeValue,
     Link,
-    RadioGroup,
-    Radio,
     createStandaloneToast
 } from '@chakra-ui/react'
 
 import { useEffect, useState } from 'react'
-import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
 import { showToast } from '../utils/showToasts';
+import { useSessionStorage } from '../utils/useSessionStorage';
+import { useNavigate } from 'react-router-dom';
 
 const { toast, ToastContainer } = createStandaloneToast();
 
 export default function SignupCard() {
     const [form, setForm] = useState({
         aadhar: '',
-        privateKey:''
     })
 
     const [loading, setLoading] = useState(false);
 
-    const [UserDiagnosis, setUserDiagnosis] = useState([])
+    // const [UserDiagnosis, setUserDiagnosis] = useState([])
+    const navigate = useNavigate()
+    const [login,setLogin] = useSessionStorage('login','false');
+    const [token, setToken] = useSessionStorage('token', '');
+    const [user,setUser] = useSessionStorage('user', JSON.stringify({}));
 
     const allFieldsFilled = () => {
         const values = Object.values(form);
@@ -41,20 +40,27 @@ export default function SignupCard() {
     }
 
     const handleSubmit = async () =>{
-        const response = await axios.post("http://localhost:4000/api/getDoctorViewList", {
+        console.log('handleSubmit called');
+        
+        const response = await axios.post("http://localhost:4000/api/doctorlogin", {
             aadhar: form.aadhar,
-            privateKey: form.privateKey.replace(/\\n/g, '\n')
             });
       
             console.log(response.data)
-            const {message, data} = response.data;
+            const {message, user, token} = response.data;
 
-            let temp = [];
-            for (let field in data) {
-            temp.push({...data[field], "Aadhar": field});
-            }
-            setUserDiagnosis(temp);
-            console.log("logged In Successfully")
+            setUser(JSON.stringify(user))
+            setLogin('true')
+            setToken(token)
+            navigate('/doctor_view')
+            window.location.reload();
+
+            // let temp = [];
+            // for (let field in data) {
+            // temp.push({...data[field], "Aadhar": field});
+            // }
+            // setUserDiagnosis(temp);
+            // console.log("logged In Successfully")
     }
     return (
         <>
@@ -85,14 +91,6 @@ export default function SignupCard() {
                                             setForm(prev => ({ ...prev, aadhar: e.target.value }))
                                         }} />
                                     </FormControl>
-             
-                            <FormControl id="privatekey" isRequired>
-                                <FormLabel>Paste your Private Key</FormLabel>
-                                <Input type="text" onChange={(e) => {
-                                    setForm(prev => ({ ...prev, privateKey: e.target.value }))
-                                }} />
-                            </FormControl>
-                        
 
                             <Stack spacing={10} pt={2}>
                                 <Button
@@ -112,7 +110,7 @@ export default function SignupCard() {
                             </Stack>
                             <Stack pt={6}>
                                 <Text align={'center'}>
-                                    Not registered? <Link color={'blue.400'} href="/DoctorRegister">Register</Link>
+                                    Not registered? <Link color={'blue.400'} href="/doctor_register">Register</Link>
                                 </Text>
                             </Stack>
                         </Stack>

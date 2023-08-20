@@ -24,7 +24,6 @@ import {
 import { Fade, ScaleFade, Slide, SlideFade, Collapse } from '@chakra-ui/react'
 import {useNavigate} from 'react-router-dom';
 import { useEffect, useState } from 'react'
-import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
 import { showToast } from '../utils/showToasts';
 import { addPatient } from '../utils/operation';
 

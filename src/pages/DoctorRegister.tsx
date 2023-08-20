@@ -7,7 +7,6 @@ import {
     Input,
     InputGroup,
     HStack,
-    InputRightElement,
     Stack,
     Button,
     Heading,
@@ -24,7 +23,6 @@ import {
 import { Fade, ScaleFade, Slide, SlideFade, Collapse } from '@chakra-ui/react'
 import {useNavigate} from 'react-router-dom';
 import { useEffect, useState } from 'react'
-import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
 import { showToast } from '../utils/showToasts';
 import { addDoctor, addPatient } from '../utils/operation';
 
@@ -38,8 +36,8 @@ export default function SignupCard() {
         aadhar: '',
         age: '',
         sex: '',
-        hospital: 'Vinoba Bhave Civil Hospital',
-        speciality: 'Surgeon'
+        hospital: '',
+        speciality: ''
     })
     const [loading, setLoading] = useState(false);
 
@@ -51,29 +49,10 @@ export default function SignupCard() {
 
     const handleSubmit = async () =>{
 
-
-        let data = JSON.stringify({
-            name: form.name,
-            aadhar: form.aadhar,
-            age: form.age,
-            sex: form.sex
-        });
-
-        let config = {
-            method: 'post',
-            maxBodyLength: Infinity,
-            url: 'http://localhost:4000/api/register',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            data: data
-        };
-
-        axios.request(config)
-            .then(async (response) => {
+        const request = await axios.get("http://localhost:4000/api/newUser").
+            then(async (response) => {
                 const res = response.data
-
-                const reg = await addDoctor(form.speciality, form.aadhar, form.sex, res.publicKey, form.name, form.hospital, form.age).
+                const reg = await addDoctor(form.speciality, form.aadhar, form.sex, res.public, form.name, form.hospital, form.age).
                     then((con) => {
                         console.log(con)
                         console.log("secretKey is as follows")
@@ -81,58 +60,66 @@ export default function SignupCard() {
                         setForm(prev => (
                             {
                                 ...prev,
-                                privateKey: res.privateKey
+                                privateKey: res.private
                             }))
                 
                         // redirect()
                         setRegistered(true);
-                        setMsg(res.privateKey)
+                        setMsg(res.private)
                     }).
                     catch((err) => {
                         console.log(err)
                     })
-                // console.log(reg)
-                // console.log("registered ")
-                // redirect()
             })
-            .catch((error) => {
-                console.log(error);
-            });
 
+        // let config = {
+        //     method: 'post',
+        //     maxBodyLength: Infinity,
+        //     url: 'http://localhost:4000/api/register',
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        //     data: form
+        // };
 
+        // axios.request(config)
+        //     .then(async (response) => {
+        //         const res = response.data
 
-
-        // console.log("register Doctor")
-        // const response = await axios.get("http://localhost:4000/api/newUser");
-        // let res = response.data;
-      
-        // console.log(res);
-        // console.log(form.speciality, form.aadhar, form.sex, res.public, form.name, form.hospital, form.age)
-        // console.log("speciality = ", form.speciality)
-        // console.log("aadhar = ", form.aadhar)
-        // console.log("sex = ", form.sex)
-        // console.log("public = ", res.public)
-        // console.log("name = ", form.name)
-        // console.log("hospital = ", form.hospital)
-        // console.log("age = ", form.age)
-
-
-        // const rs = await addDoctor(form.speciality, form.aadhar, form.sex, res.public, res.name, res.hospital, res.age)
-
-        // console.log("Doctor Registered Successfully")
-        // console.log({"privateKey": res.private, "publicKey": res.public})
-        // handle once addDoctor completed
+        //         const reg = await addDoctor(form.speciality, form.aadhar, form.sex, res.publicKey, form.name, form.hospital, form.age).
+        //             then((con) => {
+        //                 console.log(con)
+        //                 console.log("secretKey is as follows")
+        //                 console.log(res.privateKey)
+        //                 setForm(prev => (
+        //                     {
+        //                         ...prev,
+        //                         privateKey: res.privateKey
+        //                     }))
+                
+        //                 // redirect()
+        //                 setRegistered(true);
+        //                 setMsg(res.privateKey)
+        //             }).
+        //             catch((err) => {
+        //                 console.log(err)
+        //             })
+        //     })
+        //     .catch((error) => {
+        //         console.log(error);
+        //     });
     }
+
     const { isOpen, onToggle } = useDisclosure()
+
     return (
         <>
         {registered?
         <Flex
-        minH={'100vh'}
         align={'center'}
         justify={'center'}
         bg={useColorModeValue('gray.50', 'gray.800')}>
-        <Stack spacing={8} mx={'auto'} my={'3rem'} maxW={'80vw'} py={12} px={6}>
+        <Stack spacing={8} mx={'auto'} my={'6rem'} maxW={'80vw'} py={12} px={6}>
  <Heading lineHeight='tall'>
  Registered Successfully! Please note down your private key as this will be only shown once now
     and you will not be able to access this ever again. Click the button to view the key.
@@ -151,7 +138,7 @@ export default function SignupCard() {
       </SlideFade>
   
 </Heading>
-<Button onClick={()=>navigate('/login')}>Login now</Button>
+<Button onClick={()=>navigate('/DoctorLogin')}>Login now</Button>
 
 </Stack>
 </Flex>
@@ -159,7 +146,7 @@ export default function SignupCard() {
         :
         
         <Flex
-        minH={'100vh'}
+        minH={'130vh'}
         align={'center'}
         justify={'center'}
         bg={useColorModeValue('gray.50', 'gray.800')}>
@@ -177,7 +164,7 @@ export default function SignupCard() {
                 bg={useColorModeValue('white', 'gray.700')}
                 boxShadow={'lg'}
                 p={8}>
-                <Stack spacing={4}>
+                <Stack spacing={6}>
                     <HStack>
                         <Box>
                             <FormControl id="Name" isRequired>
@@ -203,6 +190,20 @@ export default function SignupCard() {
                             setForm(prev => ({ ...prev, aadhar: e.target.value }))
                         }} />
                     </FormControl>
+                    
+                    <FormControl id="hospital" isRequired>
+                        <FormLabel>Hospital/Clinic Name</FormLabel>
+                        <Input type="text" onChange={(e) => {
+                            setForm(prev => ({ ...prev, hospital: e.target.value }))
+                        }} />
+                    </FormControl>
+                    <FormControl id="speciality" isRequired>
+                        <FormLabel>Speciality</FormLabel>
+                        <Input type="text" onChange={(e) => {
+                            setForm(prev => ({ ...prev, speciality: e.target.value }))
+                        }} />
+                    </FormControl>
+                    
                     <FormControl id="gender" isRequired>
                         <FormLabel>Gender</FormLabel>
                         <RadioGroup defaultValue='1'>
@@ -244,17 +245,14 @@ export default function SignupCard() {
                     </Stack>
                     <Stack pt={6}>
                         <Text align={'center'}>
-                            Already a absuer? <Link color={'blue.400'} href="/DoctorLogin">Login</Link>
+                            Already registered doctor? <Link color={'blue.400'} href="/doctor_login">Login</Link>
                         </Text>
                     </Stack>
                 </Stack>
             </Box>
         </Stack>   
     </Flex>
-    }
-           
-            
-                                              
+    }                                       
             <ToastContainer />
         </>
     )

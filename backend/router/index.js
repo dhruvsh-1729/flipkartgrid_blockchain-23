@@ -4,6 +4,60 @@ const {storage, getAESkey} = require("./get_Storage")
 const RSA = require("./RSA")
 const encryptionKey = require("./encryption")
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const pinataSDK = require('@pinata/sdk');
+const fs = require('fs');
+const { Readable } = require('stream'); 
+
+const pinata = new pinataSDK("5284b7b23e2439ac77fa", "204fe8bf966d0ef42263c5d20ce72b74da0d700d15fbba123dd1d68417855e1a")
+const upload = multer().single('document')
+router.post('/upload', (req, res) => {
+    console.log('Request body:', req.body);
+    console.log('Request file:', req.file);
+
+    upload(req, res, async (uploadError) => {
+        if (uploadError) {
+            console.error('Error uploading:', uploadError);
+            return res.status(400).json({ message: 'Error uploading file' });
+        }
+
+        console.log('Uploaded file:', req.file);
+
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        const fileBuffer = req.file.buffer;
+
+        try {
+            // Create a readable stream from the Buffer data
+            const fileStream = new Readable();
+            fileStream.push(fileBuffer);
+            fileStream.push(null); // Signal the end of the stream
+
+            // Upload to Pinata IPFS
+            const options = {
+                pinataMetadata: {
+                    name: 'File',
+                },
+                pinataOptions: {
+                    cidVersion: 0,
+                },
+            };
+            const ipfsResponse = await pinata.pinFileToIPFS(fileStream, options);
+
+            res.status(200).json({
+                ipfsResponse,
+                fileHash: fileBuffer.toString(),
+                document: "https://gateway.pinata.cloud/ipfs/"+ipfsResponse.IpfsHash
+            });
+        } catch (error) {
+            console.error('Error uploading to IPFS:', error);
+            res.status(500).json({ message: 'Internal server error' });
+        }
+    });
+});
 
 router.post("/getDiagnostic", async (req, res) => {
     const storageObj = await storage();
@@ -32,6 +86,31 @@ router.post("/getDiagnostic", async (req, res) => {
         }
     }
 })
+
+router.post("/updateDiagnosis",  (req, res) => {
+
+    const decruptedMessage = RSA.decryptMessage(req.body.encryptionKey, req.body.privateKey);
+    let key = JSON.parse(decruptedMessage)
+
+    const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
+    let document = cipher.update(req.body.document, 'utf-8', 'hex');
+    document += cipher.final('hex');
+
+    const cipher2 = crypto.createCipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
+    let diagnosis = cipher2.update(req.body.diagnosis, 'utf-8', 'hex');
+    diagnosis += cipher2.final('hex');
+
+    const cipher3 = crypto.createCipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
+    let docType = cipher3.update(req.body.docType, 'utf-8', 'hex');
+    docType += cipher3.final('hex');
+
+
+    return res.status(200).json({
+        document: document,
+        diagnosis: diagnosis,
+        docType: docType,
+    })
+});
 
 router.post("/login", async (req, res) => {
     const storageObj = await storage();
@@ -88,7 +167,6 @@ router.post("/makeDiagnosis", async (req, res)=>{
     console.log(typeof(key));
 
     const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
-    // const cipher = crypto.createCipheriv('aes-256-cbc', key.encryptionKey, key.iv);
     let encryptedName = cipher.update(req.body.name, 'utf-8', 'hex');
     encryptedName += cipher.final('hex');
 
@@ -174,8 +252,8 @@ router.post("/get_diagnosis", async (req, res) => {
 router.get("/newUser", (req, res) => {
     const u = RSA.createUser()
     return res.status(200).json({
-        private: JSON.stringify(u.keys.privateKey),
-        public: JSON.stringify(u.keys.publicKey),
+        private: u.keys.privateKey,
+        public: u.keys.publicKey,
         message: "Success"
     })
 })
@@ -354,11 +432,45 @@ router.post("/makeAppointment", async (req, res) => {
     })
 })
 
+router.post("/doctorlogin", async (req, res) => {
+  const storageObj = await storage()
+  if (!(req.body.aadhar in storageObj.doc_info)){
+    return res.status(400).json({
+        message: "doctor not found",
+        storage: storageObj.doc_info
+    })
+    }
+else{
+  const {name,age,sex,speciality,hospital} = storageObj.doc_info[req.body.aadhar]
+  const aadhar = req.body.aadhar; 
+
+  const payload = {name,age,sex,speciality,hospital,aadhar}
+  const options ={expiresIn: '1h'}
+  const token = jwt.sign(payload, process.env.JWT_SECRET, options)
+
+  if (req.body.aadhar in storageObj.doc_info){
+    return res.status(200).json({
+        message: "success",
+        user: {
+            name, age, sex, speciality, hospital, aadhar
+        },
+        token
+    })
+    }
+    else{
+        return res.status(400).json({
+            message: "doctor visibiliity"
+        })
+    }
+}
+})
+
 router.post("/getDoctorViewList", async (req, res) => {
     const storageObj = await storage();
 
     let patients = {}
     for (field in storageObj.doc_visibility[req.body.aadhar]){
+        const aadhar = req.body.aadhar;
         if (storageObj.doc_visibility[req.body.aadhar][field]!==""){
             const patientData = storageObj.patient_info[field];
             let key = JSON.parse(RSA.decryptMessage(storageObj.doc_visibility[req.body.aadhar][field], 
@@ -374,8 +486,8 @@ router.post("/getDoctorViewList", async (req, res) => {
             sex += decipher2.final('utf-8');
 
             const decipher3 = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
-            let dob = decipher3.update(Buffer.from(patientData.age, 'hex'), 'hex', 'utf-8');
-            dob += decipher3.final('utf-8');
+            let age = decipher3.update(Buffer.from(patientData.age, 'hex'), 'hex', 'utf-8');
+            age += decipher3.final('utf-8');
 
             patients[field] = {
                 "aesEncryption" :storageObj.doc_visibility[req.body.aadhar][field],
@@ -383,10 +495,11 @@ router.post("/getDoctorViewList", async (req, res) => {
                     req.body.privateKey),
                 "name": name, 
                 "sex": sex, 
-                "dob": dob
+                "age": age
                 }
             }
     }
+
 
     if (req.body.aadhar in storageObj.doc_visibility){
         return res.status(200).json({
@@ -401,8 +514,6 @@ router.post("/doctorViewDiagnosis",  async(req, res)=>{
     
     const decruptedMessage = RSA.decryptMessage(req.body.encryptedAESKEY, req.body.privateKey);
     let key = JSON.parse(decruptedMessage)
-
-    
 
     let Aadhar = req.body.aadhar
     let diagnosis_list = [];
