@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { connectWallet, getAccount, disconnectWallet } from "../utils/wallet";
 import axios from "axios";
-
+import { useSessionStorage } from "../utils/useSessionStorage";
+import { Link } from "react-router-dom";
 
 const getResponse = async () => {
 
   let config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: 'http://localhost:3000/api',
+      url: 'http://localhost:4000/api',
       headers: {
           'Content-Type': 'application/json',
       },
@@ -28,6 +29,12 @@ const getResponse = async () => {
 
 const Navbar: React.FC = () => {
   const [account, setAccount] = useState<string>("");
+    
+  const [token,setToken] = useSessionStorage('token','');
+  const [user,setUser] = useSessionStorage('user',JSON.stringify({}));
+  const [login,setLogin] = useSessionStorage('login',"false");
+
+  const User = JSON.parse(user);
 
   useEffect(() => {
     (async () => {
@@ -53,9 +60,12 @@ const Navbar: React.FC = () => {
   return (
     <div className="navbar navbar-dark bg-dark fixed-top">
       <div className="container py-2">
-        <a href="/" className="navbar-brand">
+        <Link to={login==="true" && token.length ? `/patient_home`:`/login`} className="navbar-brand">
           Health Record Management
-        </a>
+        </Link>
+        <span style={{color:'white', fontWeight:600, fontSize:'1rem'}}>
+          {login==="true" && token.length? `Hi ${User.name}! Welcome to the Portal.` :""}
+        </span>
         <div className="d-flex">
           {/* TODO 4.b - Call connectWallet function onClick  */}
           <button  onClick={onConnectWallet}className="btn btn-outline-info">

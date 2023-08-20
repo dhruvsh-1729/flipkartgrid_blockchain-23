@@ -2,6 +2,8 @@ import React from 'react';
 import { Box, Flex, Icon, Text, VStack } from '@chakra-ui/react';
 import { FaHome, FaUser, FaCog, FaSignOutAlt } from 'react-icons/fa';
 import {Link} from 'react-router-dom'
+import { useSessionStorage } from '../utils/useSessionStorage';
+import { useNavigate } from 'react-router-dom';
 
 const Sidebar = () => {
   const menuItems = [
@@ -10,9 +12,16 @@ const Sidebar = () => {
     { icon: FaUser, label: 'Show Diagnosis',link:'/patient_home' },
     { icon: FaUser, label: 'Add Diagnosis',link:'/patient_adddiag' },
     { icon: FaUser, label: 'Make Appointment',link:'/patient_appointment' },
-    { icon: FaCog, label: 'Settings',link:'/patient_settings' },
-    { icon: FaSignOutAlt, label: 'Logout',link:'/login' },
   ];
+
+  const [login, setLogin] = useSessionStorage("login", "");
+  const [token, setToken] = useSessionStorage("token", "");
+  const [user, setUser] = useSessionStorage(
+    "user",
+    JSON.stringify({})
+  );
+
+  const navigate = useNavigate();
 
   return (
     <Box
@@ -48,6 +57,24 @@ const Sidebar = () => {
           </Flex>
           </Link>
         ))}
+          <Flex
+            align="center"
+            p={6}
+            borderRadius="md"
+            _hover={{ bg: 'gray.600' }}
+            style={{cursor:'pointer'}}
+            onClick={e=>{
+              setLogin("false");
+              setToken("");
+              setUser(JSON.stringify({}));
+              navigate('/login')
+              window.location.reload();
+
+            }}
+          >
+            <Icon as={FaSignOutAlt} mr={4} />
+            <Text style={{fontSize:'1.2rem'}}>Logout</Text>
+          </Flex>
       </VStack>
     </Box>
   );

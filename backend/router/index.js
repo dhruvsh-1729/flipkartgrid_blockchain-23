@@ -4,6 +4,7 @@ const {storage, getAESkey} = require("./get_Storage")
 const RSA = require("./RSA")
 const encryptionKey = require("./encryption")
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken')
 
 router.post("/getDiagnostic", async (req, res) => {
     const storageObj = await storage();
@@ -44,8 +45,8 @@ router.post("/login", async (req, res) => {
         const AadharHash = crypto.createHash('sha256').update(req.body.aadhar).digest('hex');
         
         if (AadharHash in storageObj.patient_info){
-            try{    
-
+            try{   
+            const aadhar = req.body.aadhar; 
             const publicKeyinput = JSON.parse(storageObj.public_keys[AadharHash])
             // console.log(publicKeyinput)
             console.log({"pri":req.body.privateKey})
@@ -64,15 +65,26 @@ router.post("/login", async (req, res) => {
             sex += decipher2.final('utf-8');
 
             const decipher3 = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
-            let dob = decipher3.update(storageObj.patient_info[AadharHash].age, 'hex', 'utf-8');
-            dob += decipher3.final('utf-8');
+            let age = decipher3.update(storageObj.patient_info[AadharHash].age, 'hex', 'utf-8');
+            age += decipher3.final('utf-8');
+
+            const payload = {
+                name,age,sex
+            }
+
+            const options = {
+                expiresIn: '1h'
+            }
+
+            const token = jwt.sign(payload, process.env.JWT_SECRET,options)
 
             return res.status(200).json({
                 message: "Success",
-                name: name,
-                dob: dob, 
-                sex: sex,
-                key: key
+                name,
+                age,
+                sex,
+                aadhar,
+                token
             })
         }
         catch(err){

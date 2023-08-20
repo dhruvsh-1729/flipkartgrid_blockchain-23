@@ -20,7 +20,6 @@ import {
 } from '@chakra-ui/react'
 
 import { useEffect, useState } from 'react'
-import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
 import { showToast } from '../utils/showToasts';
 import {useSessionStorage} from './../utils/useSessionStorage'
 import {useNavigate} from 'react-router-dom'
@@ -59,10 +58,12 @@ export default function SignupCard() {
       .then((response) => {
         console.log(response.data)
         const {message, name, age, sex, aadhar, token} = response.data;
-        setSessionLogin(true);
+        setSessionLogin("true");
         setSessionToken(token);
         setSessionUser(JSON.stringify({name,age,sex,aadhar}))
         navigate('/patient_home')
+        window.location.reload();
+
       })
       .catch((error) => {
         console.log(error.message)
@@ -124,7 +125,6 @@ export default function SignupCard() {
                                     }}
                                     onClick={(e) => {
                                         handleSubmit();
-
                                     }}>
                                     Login
                                 </Button>
