@@ -20,8 +20,9 @@ import {
 } from '@chakra-ui/react'
 
 import { useEffect, useState } from 'react'
-import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
 import { showToast } from '../utils/showToasts';
+import {useSessionStorage} from './../utils/useSessionStorage'
+import {useNavigate} from 'react-router-dom'
 
 const { toast, ToastContainer } = createStandaloneToast();
 
@@ -31,8 +32,13 @@ export default function SignupCard() {
         privateKey:''
     })
 
+    const [login,setSessionLogin] = useSessionStorage('login','false');
+    const [token,setSessionToken] = useSessionStorage('token','');
+    const [user,setSessionUser] = useSessionStorage('user',JSON.stringify({}))
+
     const [loading, setLoading] = useState(false);
 
+    const navigate = useNavigate();
     const allFieldsFilled = () => {
         const values = Object.values(form);
         return values.every(value => value.trim().length > 0);
@@ -55,17 +61,13 @@ export default function SignupCard() {
     axios.post(url, form, config)
       .then((response) => {
         console.log(response.data)
-        console.log(JSON.stringify(response.data));
-        let {message, ...rest} = response.data
-        setForm(prev=>(
-          {
-            ...prev,
-            name: response.data.name,
-            age: response.data.age, 
-            sex: response.data.sex,
-          }))
-        console.log("form is as follows")
-        console.log(form);
+        const {message, name, age, sex, aadhar, token} = response.data;
+        setSessionLogin("true");
+        setSessionToken(token);
+        setSessionUser(JSON.stringify({name,age,sex,aadhar}))
+        navigate('/patient_home')
+        window.location.reload();
+
       })
       .catch((error) => {
         console.log(error.message)
@@ -120,14 +122,13 @@ export default function SignupCard() {
                                     }}
                                     onClick={(e) => {
                                         handleSubmit();
-
                                     }}>
                                     Login
                                 </Button>
                             </Stack>
                             <Stack pt={6}>
                                 <Text align={'center'}>
-                                    Not registered? <Link color={'blue.400'} href="/">Register</Link>
+                                    Not registered? <Link color={'blue.400'} href="/register">Register</Link>
                                 </Text>
                             </Stack>
                         </Stack>

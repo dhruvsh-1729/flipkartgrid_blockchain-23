@@ -3,15 +3,16 @@ import { connectWallet, getAccount, disconnectWallet } from "../utils/wallet";
 import axios from "axios";
 import {FaHome, FaUser, FaSignOutAlt} from 'react-icons/fa'
 import { Box, Flex, Icon, Text, tokenToCSSVar, VStack } from "@chakra-ui/react";
-import { useSessionStorage } from "../utils/useSessionStorage";
 import { useNavigate } from "react-router-dom";
+import { useSessionStorage } from "../utils/useSessionStorage";
+import { Link } from "react-router-dom";
 
 const getResponse = async () => {
 
   let config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: 'http://localhost:3000/api',
+      url: 'http://localhost:4000/api',
       headers: {
           'Content-Type': 'application/json',
       },
