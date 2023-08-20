@@ -18,7 +18,7 @@ import {
 
 import { Fade, ScaleFade, Slide, SlideFade, Collapse } from '@chakra-ui/react'
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { showToast } from '../utils/showToasts';
 import { addPatient, addRecord, makeAppointment } from '../utils/operation';
 import { useSessionStorage } from '../utils/useSessionStorage';
@@ -60,7 +60,7 @@ export default function PatientAppointment() {
         return values.every(value => value.trim().length > 0);
     }
 
-    const handleChange = (event) => {
+    const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target
         setNewDiagnosis(prevValue => (
             {
