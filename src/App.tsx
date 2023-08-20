@@ -21,6 +21,7 @@ import Error from './pages/Error';
 import {useSessionStorage} from './utils/useSessionStorage'
 import PatientProfile from "./pages/PatientProfile";
 import Welcome from "./pages/Welcome";
+import Chatbot from './components/Chatbot';
 
 const App: React.FC = () => {
 
@@ -44,6 +45,7 @@ const App: React.FC = () => {
   return (
     <div className="h-100">
       <Navbar />
+      <Chatbot />
       {loggedIn && login==="true" && token.length && User?.speciality===undefined &&<NewSidebar /> }
       <Routes>
         <Route path="/register" element={<RegistrationForm />} />
