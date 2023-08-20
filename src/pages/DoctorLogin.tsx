@@ -98,7 +98,7 @@ export default function SignupCard() {
                             </Stack>
                             <Stack pt={6}>
                                 <Text align={'center'}>
-                                    Not registered? <Link color={'blue.400'} href="/">Register</Link>
+                                    Not registered? <Link color={'blue.400'} href="/DoctorRegister">Register</Link>
                                 </Text>
                             </Stack>
                         </Stack>

@@ -45,16 +45,12 @@ router.post("/login", async (req, res) => {
         
         if (AadharHash in storageObj.patient_info){
             try{    
-
             const publicKeyinput = JSON.parse(storageObj.public_keys[AadharHash])
             // console.log(publicKeyinput)
-            console.log({"pri":req.body.privateKey})
             let intermediate = RSA.decryptMessage(publicKeyinput.RSAencryptedcipherKey, req.body.privateKey)
-            
-            console.log(intermediate)
+
             let key = JSON.parse(intermediate)
-            console.log(key)
-            // conso
+            
             const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
             let name = decipher.update(storageObj.patient_info[AadharHash].name, 'hex', 'utf-8');
             name += decipher.final('utf-8');
@@ -64,15 +60,14 @@ router.post("/login", async (req, res) => {
             sex += decipher2.final('utf-8');
 
             const decipher3 = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
-            let dob = decipher3.update(storageObj.patient_info[AadharHash].age, 'hex', 'utf-8');
-            dob += decipher3.final('utf-8');
+            let age = decipher3.update(storageObj.patient_info[AadharHash].age, 'hex', 'utf-8');
+            age += decipher3.final('utf-8');
 
             return res.status(200).json({
                 message: "Success",
                 name: name,
-                dob: dob, 
+                age: age, 
                 sex: sex,
-                key: key
             })
         }
         catch(err){
@@ -93,6 +88,7 @@ router.post("/makeDiagnosis", async (req, res)=>{
     console.log(typeof(key));
 
     const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
+    // const cipher = crypto.createCipheriv('aes-256-cbc', key.encryptionKey, key.iv);
     let encryptedName = cipher.update(req.body.name, 'utf-8', 'hex');
     encryptedName += cipher.final('hex');
 
@@ -138,19 +134,17 @@ router.post("/get_diagnosis", async (req, res) => {
     key = JSON.parse(key)
 
     let doctorAccess = []
+    for (doc in storageObj.patient_visibility[Aadhar]){
+        if (storageObj.patient_visibility[Aadhar][doc] !== "0"){
+            doctorAccess.push(doc)
+        }
+    }
 
     let diagnosis_list = [];
     for( var id in storageObj.patient_diagnosis[Aadhar]){
-        let acess = storageObj.diagnosis_visibility[storageObj.patient_diagnosis[Aadhar][id]]
-        let otherAcess = []
-        for (field in acess){
-            if (field!=Aadhar){
-                otherAcess.push(field)
-            }
-        }
+        
         diagnosis_list.push({data: storageObj.diagnosis_list[storageObj.patient_diagnosis[Aadhar][id]], 
-        loc: storageObj.patient_diagnosis[Aadhar][id], 
-        access: otherAcess})
+        loc: storageObj.patient_diagnosis[Aadhar][id]})
     }
 
     for(var i=0; i<diagnosis_list.length; i++){
@@ -172,30 +166,8 @@ router.post("/get_diagnosis", async (req, res) => {
 
     return res.status(200).json({
         data: diagnosis_list,
-        message: "Success"
-    });
-});
-
-
-router.post("/get_diagnosis_list", async (req, res) => {
-    const Aadhar = req.body.aadhar; // Use req.body.aadhar to access the Aadhar field
-    const Storage_URL = process.env.STORAGE_URL;
-    const result = await axios.get(Storage_URL);
-
-    if (result.status !== 200) {
-        return res.status(500).json({
-            message: "Error"
-        });
-    }
-
-    let diagnosis_list = [];
-    for( var key in result.data.patient_diagnosis[Aadhar]){
-        diagnosis_list.push({data: result.data.diagnosis_list[result.data.patient_diagnosis[Aadhar][key]], 
-        loc: result.data.patient_diagnosis[Aadhar][key]})
-    }
-    return res.status(200).json({
-        data: diagnosis_list,
-        message: "Success"
+        message: "Success",
+        doctorAccess: doctorAccess
     });
 });
 
@@ -287,8 +259,8 @@ router.post("/register", (req, res) => {
     let sex = cipher2.update(req.body.sex, 'utf-8', 'hex');
     sex += cipher2.final('hex');
     const cipher3 = crypto.createCipheriv('aes-256-cbc', encryptionKey, iv);
-    let dob = cipher3.update(req.body.dob, 'utf-8', 'hex');
-    dob += cipher3.final('hex');
+    let age = cipher3.update(req.body.age, 'utf-8', 'hex');
+    age += cipher3.final('hex');
 
     // const sex = req.body.sex;
     // const dob = req.body.dob;
@@ -308,7 +280,7 @@ router.post("/register", (req, res) => {
         publicKey: JSON.stringify(publicKeyinput),
         name: name,
         sex: sex, 
-        dob: dob, 
+        age: age, 
         privateKey: privateKey,
         encryptionKey: encryptionKey.toString('hex'),
         iv: iv.toString('hex'),
@@ -381,4 +353,59 @@ router.post("/makeAppointment", async (req, res) => {
         encryptedDoctorName: encryptedDoctorName
     })
 })
+
+router.post("/getDoctorViewList", async (req, res) => {
+    const storageObj = await storage();
+
+    let patients = {}
+    for (field in storageObj.doc_visibility[req.body.aadhar]){
+        if (storageObj.doc_visibility[req.body.aadhar][field]!=="")
+            patients[field] = storageObj.doc_visibility[req.body.aadhar][field];
+    }
+
+    if (req.body.aadhar in storageObj.doc_visibility){
+        return res.status(200).json({
+            message: "success",
+            data: patients
+        })
+    }
+})
+
+router.post("/doctorViewDiagnosis",  async(req, res)=>{
+    const storageObj = await storage();
+    const decruptedMessage = RSA.decryptMessage(req.body.encryptedAESKEY, req.body.privateKey);
+    let key = JSON.parse(decruptedMessage)
+
+    let Aadhar = req.body.aadhar
+    let diagnosis_list = [];
+    for( var id in storageObj.patient_diagnosis[Aadhar]){
+        
+        diagnosis_list.push({data: storageObj.diagnosis_list[storageObj.patient_diagnosis[Aadhar][id]], 
+        loc: storageObj.patient_diagnosis[Aadhar][id]})
+    }
+
+    for(var i=0; i<diagnosis_list.length; i++){
+        let curObj = diagnosis_list[i].data;
+
+        for(field in curObj){
+            if(field === "patientName" || field === "symptoms" || field === "diagnosis" || field === "docType"|| field==="doctorName"  || field==="document"){
+                if (curObj[field] !== "" && curObj[field]!=="Shilpa" && curObj[field]!=="Rudra Pratap Singh"){
+                const de = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key.encryptionKey, 'hex'), Buffer.from(key.iv, 'hex'));
+                let decrypted = de.update(curObj[field], 'hex', 'utf-8');
+                decrypted += de.final('utf-8');
+                curObj[field] = decrypted;
+                }
+            }
+        }
+        diagnosis_list[i].data = curObj;
+    }
+
+    return res.status(200).json({
+        message: "success",
+        key: decruptedMessage,
+        diagnosis_list: diagnosis_list
+    })
+})
+
+router.post("")
 module.exports = router
