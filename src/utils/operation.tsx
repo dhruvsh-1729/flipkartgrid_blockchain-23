@@ -4,8 +4,8 @@ import {tezos} from "./tezos";
 import axios from "axios";
 import internal from "stream";
 
-// const CONTRACTADDRESS = "KT1Jaa9gds336gNj5nUasV8hA6vXkn1Q45vi" // does not have encrypted name in AddAppointment
-const CONTRACTADDRESS = "KT192LPKjKUjBH4UVmJeShjecGyG2sTq5BvC"
+const CONTRACTADDRESS = "KT1J6DYrKbMomK6zs9uYqD6Cn92s8uRy5NCM" 
+// const CONTRACTADDRESS = "KT192LPKjKUjBH4UVmJeShjecGyG2sTq5BvC" // does not have patient_visibility
 export const addPatient = async (sex:string , userAadhar: string, publicKey: string, 
     name:string , age:string ) => {
         try{
@@ -44,7 +44,7 @@ export const addRecord = async (symptoms:string, diagnosis:string, patientName:s
             const contract = await tezos.wallet.at(CONTRACTADDRESS);
             
             const op = await contract.methods.addRecord(diagnosis, docType, doctorName, document, 
-               keyEncrypted,  patientName, symptoms, userAadhar).send();
+            patientName, symptoms, userAadhar).send();
     
             await op.confirmation(1);
             
@@ -54,11 +54,11 @@ export const addRecord = async (symptoms:string, diagnosis:string, patientName:s
         }
 };
 
-export const controlVisibility = async (removalAadhar:string, senderAadhar:string, diagnosisIndex:string) => {
+export const controlVisibility = async (doctorAadhar:string, patientAadhar:string) => {
     try{
-        const contract = await tezos.wallet.at("KT1R2uhywzSbAwPZAZFVYCc1rANDvmhUUHVe");
+        const contract = await tezos.wallet.at(CONTRACTADDRESS);
         
-        const op = await contract.methods.controlVisibility(diagnosisIndex, removalAadhar, senderAadhar
+        const op = await contract.methods.controlVisibility(doctorAadhar,patientAadhar
               ).send();
 
         await op.confirmation(1);
@@ -87,13 +87,12 @@ export const makeAppointment = async(patientAadhar:string, symptoms:string, doct
     }
 };
 
-export const shareDiagnosis = async (docDocument:string, senderAadhar:string, doctorAadhar:string, 
-    diagnosisIndex:string) => {
+export const shareDiagnosis = async (docAadhar:string, doctorEncryptionMessage:string, patientAadhar:string) => {
         try{
-            const contract = await tezos.wallet.at("KT1R2uhywzSbAwPZAZFVYCc1rANDvmhUUHVe");
+            const contract = await tezos.wallet.at(CONTRACTADDRESS);
             
-            const op = await contract.methods.shareDiagnosis(diagnosisIndex,doctorAadhar, 
-                 docDocument, senderAadhar ).send();
+            const op = await contract.methods.shareDiagnosis(docAadhar, doctorEncryptionMessage, 
+                    patientAadhar ).send();
     
             await op.confirmation(1);
             
