@@ -20,7 +20,7 @@ export default function UserDiagnosis(props) {
   };
 
   return (
-    <div className="container mt-6">
+    <div className="container mt-6" >
       <div className="row">
         <div className="col-md-6 offset-md-3">
           <div className="card">

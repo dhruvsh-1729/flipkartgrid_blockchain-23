@@ -34,6 +34,12 @@ export default function PatientAddDiag() {
     const [user, setUser] = useSessionStorage('user', JSON.stringify({}));
     const thisuser = JSON.parse(user);
 
+    const [selectedFile, setSelectedFile] = useState(null);
+
+    const handleFileChange = (event) => {
+        setSelectedFile(event.target.files[0]);
+    };
+
     const [newDiagnosis, setNewDiagnosis] = useState({
         name: thisuser.name,
         aadhar: thisuser.aadhar,
@@ -81,7 +87,23 @@ export default function PatientAddDiag() {
         };
         console.log("Making the call")
 
-        axios.post(url, newDiagnosis, config)
+        setNewDiagnosis(prev=>({
+            ...prev, 
+            privateKey: prev.privateKey.replace(/\\n/g, '\n')
+        }))
+
+        let requestParam = {
+            "aadhar" : newDiagnosis.aadhar,
+            "privateKey" : newDiagnosis.privateKey,
+            "name" : newDiagnosis.name,
+            "diagnosis" : newDiagnosis.diagnosis,
+            "docType" : newDiagnosis.docType,
+            "docName" : newDiagnosis.doctorName,
+            "document" : newDiagnosis.document,
+            "symptoms" : newDiagnosis.symptoms
+        }
+
+        axios.post(url, requestParam, config)
             .then(async (response) => {
                 console.log(response.data)
                 console.log(JSON.stringify(response.data));
@@ -102,12 +124,41 @@ export default function PatientAddDiag() {
             });
     }
 
-    const handleDocumentHash = async (e)=>{
+    // const handleDocumentHash = async (e)=>{
+    //     e.preventDefault();
+
+
+    //     //call your api and get the document hash from IPFS from the response and add the following line
+    //     const val = "bhrb2iue3uidbi2fbib" //example hash
+    //     setNewDiagnosis(prev=>({...prev, document:val}))
+    // }
+
+
+    const handleDocumentHash = async (e) => {
         e.preventDefault();
-        //call your api and get the document hash from IPFS from the response and add the following line
-        const val = "bhrb2iue3uidbi2fbib" //example hash
-        setNewDiagnosis(prev=>({...prev, document:val}))
-    }
+
+        if (selectedFile) {
+            const formData = new FormData();
+            formData.append('document', selectedFile);
+
+            try {
+                const response = await axios.post('http://localhost:4000/api/upload', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+
+                console.log("document:response.data.document = ", response.data.document);
+                setNewDiagnosis(prev=>({...prev, document:response.data.document}));
+                console.log("newDiagnosis = ", newDiagnosis);
+                console.log('File uploaded:', response.data);
+            } catch (error) {
+                console.error('Error uploading file:', error);
+            }
+        }
+    };
+
+
     return (
         <>
             <Flex
@@ -156,7 +207,7 @@ export default function PatientAddDiag() {
 
                             <FormControl id="document" isRequired>
                                 <FormLabel>Medical Document</FormLabel>
-                                <Input type="file" name="document" />
+                                <Input type="file" name="document"  onChange={handleFileChange}/>
                                     <Button
                                     loadingText="Submitting"
                                     size="md"
@@ -165,9 +216,8 @@ export default function PatientAddDiag() {
                                     _hover={{
                                         bg: 'red.500',
                                     }}
-                                    onClick={(e) => {
-                                        handleDocumentHash(e);
-                                    }}>
+                                    onClick={handleDocumentHash}
+                                    >
                                     Upload Document
                                 </Button>
                             </FormControl>

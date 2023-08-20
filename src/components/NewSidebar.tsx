@@ -69,7 +69,6 @@ const Sidebar = () => {
               setUser(JSON.stringify({}));
               navigate('/login')
               window.location.reload();
-
             }}
           >
             <Icon as={FaSignOutAlt} mr={4} />
