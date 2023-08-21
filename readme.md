@@ -49,7 +49,8 @@
 
 
 
-  ![image](https://github.com/dhruvsh-1729/newfgrid-23/assets/79053599/3379bd0a-dd27-4126-b141-3f032b3bb058)
+  ![image](https://github.com/dhruvsh-1729/newfgrid-23/assets/79053599/1b648133-f2e5-4754-ace8-fd1f4c345c39)
+
 
 
 <hr>
@@ -61,7 +62,10 @@
 
 ![image](https://github.com/dhruvsh-1729/newfgrid-23/assets/79053599/6b2efd9f-da65-4628-a989-0f3abd2b3acc)
 
-![image](https://github.com/dhruvsh-1729/newfgrid-23/assets/79053599/23a35bfb-b1f6-491d-8634-4555a774e2d7)
+![image](https://github.com/dhruvsh-1729/newfgrid-23/assets/79053599/858180ad-5632-49aa-b375-6c4c8ae93799)
+
+![image](https://github.com/dhruvsh-1729/newfgrid-23/assets/79053599/1586171f-edff-4007-a8c5-8b4d42bf27d7)
+
 
 ![image](https://github.com/dhruvsh-1729/newfgrid-23/assets/79053599/16335bbc-a46e-4676-bb26-4cb6dddab6f6)
 
@@ -78,4 +82,8 @@
 
 ![image](https://github.com/dhruvsh-1729/newfgrid-23/assets/79053599/1666931a-c391-4630-a0de-27d0ab3e6e4a)
 
+<hr>
+<h3>Hospital View</h3>
+
+![image](https://github.com/dhruvsh-1729/newfgrid-23/assets/79053599/3bb4e3d9-7ad9-4309-b121-80fc1206da09)
 
