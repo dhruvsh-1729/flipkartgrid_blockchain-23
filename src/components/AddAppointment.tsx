@@ -30,7 +30,7 @@ export default function AddAppointment(props) {
   
         console.log(data)
         
-        const url =  'http://localhost:4000/api/makeAppointment'
+        const url =  'https://efficacious-writing-production.up.railway.app/api/makeAppointment'
         let config = {
           maxBodyLength: Infinity,
           headers: { 

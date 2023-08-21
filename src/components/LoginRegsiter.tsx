@@ -47,7 +47,7 @@ const LoginRegister = (props)=>{
 
       console.log(data)
       
-      const url =  'http://localhost:4000/api/login'
+      const url =  'https://efficacious-writing-production.up.railway.app/api/login'
       let config = {
         maxBodyLength: Infinity,
         headers: { 
@@ -98,14 +98,14 @@ const LoginRegister = (props)=>{
       let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'http://localhost:4000/api/register',
+        url: 'https://efficacious-writing-production.up.railway.app/api/register',
         headers: { 
           'Content-Type': 'application/json'
         },
         data : data
       };
 
-      axios.request(config)
+      axios.request(config as any)
       .then(async (response) => {
         const res = response.data
         setMsg(JSON.stringify(res.privateKey))

@@ -33,7 +33,7 @@ export default function PatientAppointment() {
 
     useEffect(() => {
         async function fetchData() {
-            const response = await axios.get("http://localhost:4000/api/DoctorList");
+            const response = await axios.get("https://efficacious-writing-production.up.railway.app/api/DoctorList");
             setMock(response.data.data);
         }
         fetchData();
@@ -79,7 +79,7 @@ export default function PatientAppointment() {
             privateKey: prev.privateKey.replace(/\\n/g, '\n')
         }))
         
-        const url =  'http://localhost:4000/api/makeAppointment'
+        const url =  'https://efficacious-writing-production.up.railway.app/api/makeAppointment'
         let config = {
           maxBodyLength: Infinity,
           headers: { 

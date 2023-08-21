@@ -4,7 +4,7 @@ import {BsGenderFemale, BsGenderMale, BsGenderAmbiguous} from 'react-icons/bs'
 interface ICardProps {
     docType:string, document:string, symptoms:string,
      diagnosis:string, doctorName:string, patientName:string
-     ,upload:boolean
+     ,upload:boolean, viewEdit?:any
 }
 
 export default function DiagnosisCard({viewEdit, docType, document,

@@ -30,7 +30,7 @@ const EditDiagnosis = ({user, diag}) => {
             formData.append('document', selectedFile);
 
             try {
-                const response = await axios.post('http://localhost:4000/api/upload', formData, {
+                const response = await axios.post('https://efficacious-writing-production.up.railway.app/api/upload', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
@@ -45,7 +45,7 @@ const EditDiagnosis = ({user, diag}) => {
                     };
                     
                     const res2 = await axios.post(
-                        "http://localhost:4000/api/updateDiagnosis",
+                        "https://efficacious-writing-production.up.railway.app/api/updateDiagnosis",
                         {
                             encryptionKey: user.aesEncryption,
                             privateKey: form.privateKey.replace(/\\n/g, "\n"),
@@ -82,7 +82,7 @@ const EditDiagnosis = ({user, diag}) => {
             };
             
             const res2 = await axios.post(
-                "http://localhost:4000/api/updateDiagnosis",
+                "https://efficacious-writing-production.up.railway.app/api/updateDiagnosis",
                 {
                     encryptionKey: user.aesEncryption,
                     privateKey: form.privateKey.replace(/\\n/g, "\n"),

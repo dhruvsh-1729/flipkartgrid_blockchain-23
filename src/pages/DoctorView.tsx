@@ -43,7 +43,7 @@ export default function DoctorView() {
 
   async function getDiagnosis() {
     const response = await axios.post(
-      "http://localhost:4000/api/getDoctorViewList",
+      "https://efficacious-writing-production.up.railway.app/api/getDoctorViewList",
       {
         aadhar,
         privateKey: docForm.privateKey.replace(/\\n/g, "\n"),
@@ -80,7 +80,7 @@ console.log(patientDiagnosis);
   async function oneDiagnosis(item) {
     console.log(item);
     const response = await axios.post(
-      "http://localhost:4000/api/doctorViewDiagnosis",
+      "https://efficacious-writing-production.up.railway.app/api/doctorViewDiagnosis",
       {
         aadhar: item.Aadhar,
         privateKey: docForm.privateKey.replace(/\\n/g, "\n"),
@@ -166,7 +166,7 @@ console.log(patientDiagnosis);
         user={selectedUser}
         diag={currDiag}/>}
       <Heading fontSize={'2xl'} textAlign={'center'}>
-      All Diagnosis of {selectedUser.name}
+      All Diagnosis of {(selectedUser as any).name}
       </Heading>
       <Stack spacing={4} style={{ flex: 1, flexDirection: "row" }}>
         {patientDiagnosis.map(item=>{return(<>
@@ -184,8 +184,7 @@ console.log(patientDiagnosis);
           <Stack spacing={4} style={{ flex: 1, flexDirection: "row" }}>
             
             {UserDiagnosis.map((item: IItem, index) => {
-              return <Card item={item} title={item.name} age={item.age} sex={item.sex}
-                aesEncryption={item.aesEncryption} aesDecrypted={item.aesDecrypted}
+              return <Card title={item.name} age={item.age} sex={item.sex}
               oneDiagnosis={()=>oneDiagnosis(item)} controlVisiblity={()=>remove(item)}/>;
             })}
           </Stack>

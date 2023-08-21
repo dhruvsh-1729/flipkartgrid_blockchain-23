@@ -50,7 +50,7 @@ export default function SignupCard() {
             ...prev, 
             privateKey: form.privateKey.replace(/\\n/g, '\n')
         }))
-        const url = 'http://localhost:4000/api/login'
+        const url = 'https://efficacious-writing-production.up.railway.app/api/login'
         let config = {
             maxBodyLength: Infinity, 
             headers: {

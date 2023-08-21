@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import Header from "./components/Header";
-import Navbar from "./components/Navbar";
-import LoginRegister from "./components/LoginRegsiter";
-import UserInfo from "./components/UserInfo";
-import UserDiagnosis from "./components/UserDiagnosis";
+// import Header from "./components/Header";
+import Navbar from "../components/Navbar";
+import LoginRegister from "../components/LoginRegsiter";
+import UserInfo from "../components/UserInfo";
+import UserDiagnosis from "../components/UserDiagnosis";
 import axios from "axios";
-import Sidebar from "./components/Sidebar";
-import NewDiagnosisForm from "./components/AddDiagnosis";
-import AddAppointment from "./components/AddAppointment";
+import Sidebar from "../components/Sidebar";
+import NewDiagnosisForm from "../components/AddDiagnosis";
+import AddAppointment from "../components/AddAppointment";
 
 export default function Patients() {
   // const [loggedIn, setLoggedIn] = useState(true);
@@ -26,7 +26,7 @@ export default function Patients() {
   const diagnosisList = async () => {
     if (loggedIn === true) {
       try {
-        const response = await axios.post("http://localhost:4000/api/getDiagnostic", {
+        const response = await axios.post("https://efficacious-writing-production.up.railway.app/api/getDiagnostic", {
           aadhar: form.aadhar,
         });
 
@@ -60,9 +60,9 @@ export default function Patients() {
   }, [loggedIn, form.aadhar, viewState]);
 
   const appStyle = {
-    display: "flex",
-    flexDirection: "row",
-    height: "100vh",
+    display: "flex" as "flex",
+    flexDirection: "row" as "row",
+    height: "100vh" as "100vh",
   };
 
   const sidebarStyle = {

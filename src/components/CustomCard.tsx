@@ -6,9 +6,9 @@ interface ICustomCardProps {
     title: string,
     desc: string,
     text1: string,
-    text2: string,
+    text2?: string,
     link1: string,
-    link2: string,
+    link2?: string,
     img:string
 }
 

@@ -16,7 +16,15 @@ people of all ages. Do not answer any questions strictly which include anything 
 }
 
 function Chatbot() {
-    const [messages, setMessages] = useState([
+    const [messages, setMessages] = useState<{
+        message: any;
+        direction: string;
+        sender: string;
+    }|{
+        message: string;
+        sentTime: string;
+        sender: string;
+    }[]>([
         {
             message: "Hello, I'm your health guide! Ask me anything!",
             sentTime: "just now",
@@ -32,7 +40,7 @@ function Chatbot() {
             sender: "user"
         };
 
-        const newMessages = [...messages, newMessage];
+        const newMessages = [...messages as any, newMessage];
 
         setMessages(newMessages);
 
@@ -114,7 +122,7 @@ function Chatbot() {
                             scrollBehavior="smooth"
                             typingIndicator={isTyping ? <TypingIndicator content="Chatbot is typing" /> : null}
                         >
-                            {messages.map((message, i) => {
+                            {(messages as any).map((message, i) => {
                                 console.log(message)
                                 return (<><Message key={i} model={message}>
                                     {/* {message.sender === "ChatGPT" ? <Avatar src={botImage} name="Eliot" /> : <Avatar src={boyImage} name="user" size="sm" />} */}

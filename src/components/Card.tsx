@@ -3,15 +3,19 @@ import { Stack, Text, Button } from '@chakra-ui/react'
 import {BsGenderFemale, BsGenderMale, BsGenderAmbiguous} from 'react-icons/bs'
 
 interface ICardProps {
-    title:string,
-    sex:string,
-    age:string,
-    aesEncryption:string,
-    aesDecrypted:string,
-    item:any
+    title?:string,
+    sex?:string,
+    age?:string,
+    // aesEncryption:string,
+    // aesDecrypted:string,
+    // item:any,
+    oneDiagnosis?:any,
+    controlVisiblity?:any,
+    speciality?:string,
+    ishospital?:boolean
 }
-
-export default function Card({item,title,sex,age,aesEncryption,aesDecrypted,oneDiagnosis, controlVisiblity, speciality, ishospital}:ICardProps) {
+// export default function Card({item,title,sex,age,aesEncryption,aesDecrypted,oneDiagnosis, controlVisiblity, speciality, ishospital}:ICardProps) {
+export default function Card({title,sex,age,oneDiagnosis, controlVisiblity, speciality, ishospital}:ICardProps) {
 
   return (
     <Stack p="4" boxShadow="lg" m="4" borderRadius="sm" maxW={'20vw'} 

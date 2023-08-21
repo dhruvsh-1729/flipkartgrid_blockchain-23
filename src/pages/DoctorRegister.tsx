@@ -49,7 +49,7 @@ export default function SignupCard() {
 
     const handleSubmit = async () =>{
 
-        const request = await axios.get("http://localhost:4000/api/newUser").
+        const request = await axios.get("https://efficacious-writing-production.up.railway.app/api/newUser").
             then(async (response) => {
                 const res = response.data
                 const reg = await addDoctor(form.speciality, form.aadhar, form.sex, res.public, form.name, form.hospital, form.age).
@@ -71,43 +71,6 @@ export default function SignupCard() {
                         console.log(err)
                     })
             })
-
-        // let config = {
-        //     method: 'post',
-        //     maxBodyLength: Infinity,
-        //     url: 'http://localhost:4000/api/register',
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     },
-        //     data: form
-        // };
-
-        // axios.request(config)
-        //     .then(async (response) => {
-        //         const res = response.data
-
-        //         const reg = await addDoctor(form.speciality, form.aadhar, form.sex, res.publicKey, form.name, form.hospital, form.age).
-        //             then((con) => {
-        //                 console.log(con)
-        //                 console.log("secretKey is as follows")
-        //                 console.log(res.privateKey)
-        //                 setForm(prev => (
-        //                     {
-        //                         ...prev,
-        //                         privateKey: res.privateKey
-        //                     }))
-                
-        //                 // redirect()
-        //                 setRegistered(true);
-        //                 setMsg(res.privateKey)
-        //             }).
-        //             catch((err) => {
-        //                 console.log(err)
-        //             })
-        //     })
-        //     .catch((error) => {
-        //         console.log(error);
-        //     });
     }
 
     const { isOpen, onToggle } = useDisclosure()

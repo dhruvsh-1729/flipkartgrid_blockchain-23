@@ -42,7 +42,7 @@ export default function SignupCard() {
     const handleSubmit = async () =>{
         console.log('handleSubmit called');
         
-        const response = await axios.post("http://localhost:4000/api/doctorlogin", {
+        const response = await axios.post("https://efficacious-writing-production.up.railway.app/api/doctorlogin", {
             aadhar: form.aadhar,
             });
       

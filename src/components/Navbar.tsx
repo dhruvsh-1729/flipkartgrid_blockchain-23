@@ -19,7 +19,7 @@ const getResponse = async () => {
       withCredentials: false  
   };
 
-  axios.request(config)
+  axios.request(config as any)
       .then((response) => {
           console.log("worked and this is the response");
           console.log(JSON.stringify(response.data));
@@ -115,7 +115,7 @@ const Navbar: React.FC = () => {
         navigate('/doctor_login')
       }}
       >
-        {User?.speciality!==undefined && <><Icon as={FaSignOutAlt} mr={2} color={'lightgreen'} />
+        {(User as any).speciality!==undefined && <><Icon as={FaSignOutAlt} mr={2} color={'lightgreen'} />
        <Text style={{position:'relative',top:'.5rem',display:'flex',justifyContent:'center',alignContent:'center',alignItems:'center',fontSize:'1rem',color:'white',transition:"0.5s all ease"}}
         >Logout</Text></>}
       </Flex>

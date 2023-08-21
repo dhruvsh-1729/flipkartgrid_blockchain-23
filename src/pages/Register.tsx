@@ -52,7 +52,7 @@ export default function SignupCard() {
     let config = {
       method: "post",
       maxBodyLength: Infinity,
-      url: "http://localhost:4000/api/register",
+      url: "https://efficacious-writing-production.up.railway.app/api/register",
       headers: {
         "Content-Type": "application/json",
       },
@@ -60,7 +60,7 @@ export default function SignupCard() {
     };
 
     axios
-      .request(config)
+      .request(config as any)
       .then(async (response) => {
         const res = response.data;
         const reg = await addPatient(

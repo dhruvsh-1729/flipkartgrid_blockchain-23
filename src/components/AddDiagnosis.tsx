@@ -36,7 +36,7 @@ export default function NewDiagnosisForm(props) {
   
         console.log(data)
         
-        const url =  'http://localhost:4000/api/makeDiagnosis'
+        const url =  'https://efficacious-writing-production.up.railway.app/api/makeDiagnosis'
         let config = {
           maxBodyLength: Infinity,
           headers: { 
