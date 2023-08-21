@@ -175,6 +175,7 @@ router.post("/login", async (req, res) => {
 })
 
 router.post("/makeDiagnosis", async (req, res)=>{
+    try{
     const AadharHash = crypto.createHash('sha256').update(req.body.aadhar).digest('hex');
     let {key, rsa} = await getAESkey(AadharHash, req.body.privateKey)
     key = JSON.parse(key)
@@ -215,7 +216,13 @@ router.post("/makeDiagnosis", async (req, res)=>{
         userAadhar: AadharHash,
         RSAencryptedcipherKey: rsa
     })
-
+    }
+    catch(err){
+        return res.status(500).json({
+            message: "Error",
+            error: err
+        })
+    }
 })
 
 router.post("/get_diagnosis", async (req, res) => {
@@ -229,7 +236,14 @@ router.post("/get_diagnosis", async (req, res) => {
     let doctorAccess = []
     for (doc in storageObj.patient_visibility[Aadhar]){
         if (storageObj.patient_visibility[Aadhar][doc] !== "0"){
-            doctorAccess.push(doc)
+            let doctor = {
+                name: storageObj.doc_info[String(doc)].name,
+                age: storageObj.doc_info[String(doc)].age,
+                sex: storageObj.doc_info[String(doc)].sex,
+                speciality: storageObj.doc_info[String(doc)].speciality,
+                aadhar: doc
+            }
+            doctorAccess.push(doctor)
         }
     }
 
@@ -260,7 +274,8 @@ router.post("/get_diagnosis", async (req, res) => {
     return res.status(200).json({
         data: diagnosis_list,
         message: "Success",
-        doctorAccess: doctorAccess
+        doctorAccess: doctorAccess, 
+        hashedAadhar: Aadhar
     });
     }
     catch(err){
@@ -607,6 +622,44 @@ router.get('/DoctorList', async (req, res) => {
     return res.status(200).json({
         "data": doctorList,
         "message": "Successfully compiled the list of doctors"
+    })
+})
+
+router.get('/getHospital', async (req, res) => {
+    const storageObj = await storage();
+    let hospitalList = [];
+
+    for (let field in storageObj.hospital){
+        let doctorInfo = [];
+        // let doctorsList = storageObj.hospital[field];
+
+        // for (let doc_aadhar in doctorsList){
+        //     doctorInfo.push(doctorsList[doc_aadhar]);
+        // }
+
+
+
+        for (let currentDocAadhar in storageObj.hospital[field]){
+
+            let doc = storageObj.hospital[field][currentDocAadhar];
+            let currentDocName = storageObj.doc_info[doc].name;
+            let currentDocSpeciality = storageObj.doc_info[doc].speciality;
+            let currentDocage = storageObj.doc_info[doc].age;
+            let currentDocsex = storageObj.doc_info[doc].sex;
+            doctorInfo.push({
+                name: currentDocName,
+                aadhar: currentDocAadhar,
+                speciality: currentDocSpeciality,
+                age: currentDocage,
+                sex: currentDocsex
+            })
+        }
+        hospitalList.push({hospialName: field, doctors: doctorInfo})
+    }
+
+    return res.status(200).json({
+        "data": hospitalList,
+        "message": "Successfully compiled the list of hospitals"
     })
 })
 

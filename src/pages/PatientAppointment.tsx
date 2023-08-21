@@ -111,7 +111,7 @@ export default function PatientAppointment() {
         .catch((error) => {
           if ("response" in error){
             if ("data" in error.response){
-                alert(error.response.data.message)
+                console.log(error.response.data.message)
             }
             console.log(error.response.data.message)
           }

@@ -19,6 +19,7 @@ import { useSessionStorage } from "../utils/useSessionStorage";
 import Card from "../components/Card";
 import DiagnosisCard from "../components/DiagnosisCard";
 import EditDiagnosis from "../components/EditDiagnosis";
+import { controlVisibility } from "../utils/operation";
 
 interface IItem {
   name: string;
@@ -109,6 +110,14 @@ console.log(patientDiagnosis);
     console.log("item ", item)
   }
 
+  const remove = async (item:any) => {
+    console.log(item)
+    console.log("aadhar = ", item.Aadhar)
+    console.log("DocAaddhar = ", aadhar)
+
+    const visiblityControl = await controlVisibility(aadhar, item.Aadhar);
+  }
+
 
 
   return (
@@ -177,7 +186,7 @@ console.log(patientDiagnosis);
             {UserDiagnosis.map((item: IItem, index) => {
               return <Card item={item} title={item.name} age={item.age} sex={item.sex}
                 aesEncryption={item.aesEncryption} aesDecrypted={item.aesDecrypted}
-              oneDiagnosis={()=>oneDiagnosis(item)} />;
+              oneDiagnosis={()=>oneDiagnosis(item)} controlVisiblity={()=>remove(item)}/>;
             })}
           </Stack>
         ) : (

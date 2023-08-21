@@ -11,7 +11,7 @@ interface ICardProps {
     item:any
 }
 
-export default function Card({item,title,sex,age,aesEncryption,aesDecrypted,oneDiagnosis}:ICardProps) {
+export default function Card({item,title,sex,age,aesEncryption,aesDecrypted,oneDiagnosis, controlVisiblity, speciality, ishospital}:ICardProps) {
 
   return (
     <Stack p="4" boxShadow="lg" m="4" borderRadius="sm" maxW={'20vw'} 
@@ -20,19 +20,25 @@ export default function Card({item,title,sex,age,aesEncryption,aesDecrypted,oneD
       <Stack direction="row" alignItems="center">
         <Text fontWeight="semibold" style={{fontSize:"1.5rem",display:"flex", flexDirection:"row"
     ,padding:"0.5rem"}}>{title} &nbsp;
-        {sex==='male' ? <BsGenderMale color='blue' fontWeight={600}/> : <BsGenderAmbiguous color='orange' fontWeight={600}/>}
-          {sex==='female' ? <BsGenderFemale color='pink' fontWeight={600}/> : ""} {sex}</Text>
+        {sex==='male' ? <BsGenderMale color='blue' fontWeight={600}/> : sex==='female' ? <BsGenderFemale color='pink' fontWeight={600}/> : <BsGenderAmbiguous color='orange' fontWeight={600}/>}
+           {sex}</Text>
       </Stack>
 
       <Stack direction={{ base: 'column' }} justifyContent="space-between">
+     { speciality!==undefined && <Text fontSize={{ base: 'lg' }} textAlign={'left'} maxW={'4xl'}>
+          Specility: <b>{speciality}</b>  
+        </Text>  }
         <Text fontSize={{ base: 'lg' }} textAlign={'left'} maxW={'4xl'}>
           Age: <b>{age}</b> years 
         </Text>  
         <Stack direction={{ base: 'column', md: 'row' }}>
-          <Button variant="outline" colorScheme="green" onClick={oneDiagnosis} >
+          {speciality===undefined && <Button variant="outline" colorScheme="green" onClick={oneDiagnosis} >
             Show More
-          </Button>
-          <Button colorScheme="red">Delete</Button>
+          </Button>}
+         {ishospital===undefined && <Button colorScheme="red" onClick={controlVisiblity}>
+            {        speciality===undefined ? <>Delete</>: <>Revoke Access</>}
+            </Button>
+            }
         </Stack>
       </Stack>
     </Stack>

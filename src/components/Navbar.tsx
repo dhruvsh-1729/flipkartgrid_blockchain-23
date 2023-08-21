@@ -102,9 +102,9 @@ const Navbar: React.FC = () => {
           Health Record Management
         </a>
       {(login==="true" && token.length)? <VStack spacing={1} align="stretch" flex={1} flexDirection='row' ml={'2rem'}>
-        {User?.speciality!==undefined && menuItems.map((item, index) => (
+        {/* {User?.speciality!==undefined && menuItems.map((item, index) => (
           <NavbarItem key={index} icon={item.icon} label={item.label} />
-        ))}
+        ))} */}
         <Flex align="center" p={2} cursor="pointer" 
       style={{color:'white',transition:"0.5s all ease",justifyContent:'center',alignItems:'center',display:'flex',fontSize:'1rem'}}
       _hover={{backgroundColor:'gray.600',color:'lightgreen',borderRadius:'10px'}}

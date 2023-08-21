@@ -40,9 +40,9 @@ const CustomCard = ({ title, desc, text1, text2, link1, link2, img }: ICustomCar
                     <Link to={link1}><Button variant='solid' colorScheme='purple' style={{margin:'.5rem'}}>
                         {text1}
                     </Button></Link>
-                    <Link to={link2}><Button variant='solid' colorScheme='yellow' style={{margin:'.5rem'}}>
+                    {text2!==undefined && <Link to={link2}><Button variant='solid' colorScheme='yellow' style={{margin:'.5rem'}}>
                         {text2}
-                    </Button></Link>
+                    </Button></Link>}
 
                 </CardFooter>
             </Stack>

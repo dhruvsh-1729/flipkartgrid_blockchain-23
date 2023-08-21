@@ -4,8 +4,8 @@ import {tezos} from "./tezos";
 import axios from "axios";
 import internal from "stream";
 
-const CONTRACTADDRESS = "KT1J6DYrKbMomK6zs9uYqD6Cn92s8uRy5NCM" 
-// const CONTRACTADDRESS = "KT192LPKjKUjBH4UVmJeShjecGyG2sTq5BvC" // does not have patient_visibility
+// const CONTRACTADDRESS = "KT1J6DYrKbMomK6zs9uYqD6Cn92s8uRy5NCM" // have the updateDiagnosis problem
+const CONTRACTADDRESS = "KT1KKknhpn1iiBqB315okxm7iiscPtpRWgwy" 
 export const addPatient = async (sex:string , userAadhar: string, publicKey: string, 
     name:string , age:string ) => {
         try{

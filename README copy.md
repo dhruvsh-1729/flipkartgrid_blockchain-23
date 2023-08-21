@@ -37,7 +37,6 @@ A minimal React setup for starting developing Tezos DApps quickly with Taquito.
 
    For more information read the [Vite Guide](https://vitejs.dev/guide/static-deploy.html)
 
-[logo]: https://raw.githubusercontent.com/ecadlabs/taquito-boilerplate/master/assets/built-with-taquito.png "Built with Taquito"
 
 > ## Polyfill
 >

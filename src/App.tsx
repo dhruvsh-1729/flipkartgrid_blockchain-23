@@ -17,6 +17,7 @@ import PatientHome from './pages/PatientHome';
 import PatientAddDiag from "./pages/PatientAddDiag";
 import PatientAppointment from "./pages/PatientAppointment";
 import Error from './pages/Error';
+import HospitalInfo from "./pages/Hospital";
 
 import {useSessionStorage} from './utils/useSessionStorage'
 import PatientProfile from "./pages/PatientProfile";
@@ -60,6 +61,7 @@ const App: React.FC = () => {
         <Route path="/patient_profile" element={(login==="true" && token.length) ? <PatientProfile />:<Error />} />
         <Route path="/patient_adddiag" element={(login==="true" && token.length) ? <PatientAddDiag />:<Error />} />
         <Route path="/patient_appointment" element={(login==="true" && token.length) ? <PatientAppointment />:<Error />} />        
+        <Route path="/hospital" element={<HospitalInfo/>} />
       </Routes>
     </div>
   );
