@@ -17,7 +17,8 @@
   <h2>Getting Started</h2>
   <p>To set up and run the project:</p>
   <ol>
-    <li>Open a terminal and navigate to the project directory.</li>
+    <li>Open a terminal and navigate to the project directory where package.json exists.
+    Run command : <code>npm install && cd backend/ && npm install && cd ..</code></li>
     <li>Execute the main code using the command: <code>npm run dev</code></li>
     <li>For starting the backend, use the command: <code>npm start</code></li>
   </ol>
