@@ -87,3 +87,64 @@
 
 ![image](https://github.com/dhruvsh-1729/newfgrid-23/assets/79053599/3bb4e3d9-7ad9-4309-b121-80fc1206da09)
 
+
+<hr>
+<hr>
+
+<h1>HRM Application Instructions</h1>
+
+  <h2>Getting Started</h2>
+  <p>Before using the HRM application, follow these steps:</p>
+  <ol>
+    <li>Create a wallet account using the Temple Wallet extension. Install it from
+      <a href="https://chrome.google.com/webstore/detail/temple-tezos-wallet/ookjlbkiijinhpmnjffcofjonbfbgaoc"
+        target="_blank">here</a> and make a new wallet.</li>
+    <li>Obtain funds in your Ghost Net account for transactions. Get them from
+      <a href="https://faucet.ghostnet.teztnets.xyz/" target="_blank">here</a>.</li>
+  </ol>
+
+  <h2>Connecting to the Application</h2>
+  <p>Access the HRM application through the GitHub repository's right-hand side or use this link:
+    <a href="https://hrm-chi.vercel.app/" target="_blank">HRM Application</a>.</p>
+  <ol>
+    <li>Click on "Connect Wallet" on the top-right corner.</li>
+    <li>Choose "Temple Wallet" if you have it installed, and connect through the browser extension.</li>
+    <li>Your wallet address will be displayed in the navigation bar.</li>
+  </ol>
+
+  <p>Note: When the application contacts the smart contract, a popup will ask for your wallet password to sign transactions.</p>
+  <p>Clicking on the navbar header will return you to the home page.</p>
+
+  <h2>Application Views</h2>
+  <p>The application has three main views:</p>
+  <ul>
+    <li><strong>Hospital View</strong>: To see the doctor list and hospital list, click on the "Hospital View" tab.
+      This will show the list of doctors and their associated hospitals.</li>
+    <li><strong>Patient View</strong>:</li>
+    <ul>
+      <li>Click on "Login/Register" on the Patient Tab to access the Patient view.</li>
+      <li>To register, enter your details and click "Register." After registration, a popup will open confirming your
+        registration. You will be redirected to a page containing your secret key. Click "Reveal Now" to view your secret
+        key and store it securely on your computer. You'll frequently need it to view and make diagnoses.</li>
+      <li>Click "Login" and enter your Aadhar number and secret key to log in.</li>
+      <li>You'll be redirected to the home page for patients.</li>
+      <li>To view your diagnoses, click "Show Diagnosis" and enter your secret key. You can filter your diagnoses with
+        the input field. You'll also see doctors who can currently access your details and diagnoses. Click "Revoke
+        Access" to control who sees your diagnoses.</li>
+      <li>To add a diagnosis, click on the "Add Diagnosis" tab and enter the diagnosis details.</li>
+      <li>To make an appointment with a doctor, click on the "Make Appointment" tab in the side pane. The appointment is
+        visible as a normal diagnosis without any document or diagnosis information. This information will be filled in by
+        the doctor.</li>
+    </ul>
+    <li><strong>Doctor View</strong>:</li>
+    <ul>
+      <li>Registration is similar to patients.</li>
+      <li>For login, doctors only need their Aadhar number.</li>
+      <li>To view patients and their diagnoses, and to add them, enter your secret key on the doctor's home page and
+        click "Get Patients." This will display a list of patients.</li>
+      <li>Click on "Show More" to view all diagnoses for a patient and click "Delete" to remove/revoke access for a
+        patient.</li>
+      <li>Click on "Edit Diagnosis" for a particular diagnosis to add diagnosis information like documents and diagnosis
+        for the patient. This will update that particular diagnosis.</li>
+    </ul>
+  </ul>
